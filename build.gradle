@@ -14,16 +14,6 @@ repositories {
     mavenCentral()
 }
 
-loom {
-    splitEnvironmentSourceSets()
-    
-    mods {
-        "quickstore" {
-            sourceSet sourceSets.main
-        }
-    }
-}
-
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings loom.officialMojangMappings()

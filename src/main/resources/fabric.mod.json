@@ -1,21 +1,36 @@
 {
   "schemaVersion": 1,
-  "id": "action_recorder",
-  "version": "1.0.0",
-  "name": "Action Recorder",
-
+  "id": "quickchest",
+  "version": "${version}",
+  "name": "Quick Chest",
+  "description": "Auto drop + store items when clicking chest - 0.3 second delay",
+  "authors": ["YourName"],
+  "contact": {
+    "homepage": "https://github.com/yourname/quickchest",
+    "sources": "https://github.com/yourname/quickchest"
+  },
+  "license": "MIT",
+  "icon": "assets/quickchest/icon.png",
   "environment": "client",
-
   "entrypoints": {
     "client": [
       "com.quickchest.QuickChestMod"
     ]
   },
-
+  "mixins": [
+    "quickchest.mixins.json"
+  ],
   "depends": {
-    "minecraft": "1.21.4",
-    "fabricloader": ">=0.16.10",
+    "minecraft": "${minecraft_version}",
+    "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
     "java": ">=21"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/xxx"
+      }
+    }
   }
 }

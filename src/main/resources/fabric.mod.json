@@ -1,22 +1,20 @@
 {
   "schemaVersion": 1,
   "id": "action_recorder",
-  "version": "${version}",
+  "version": "1.0.0",
   "name": "Action Recorder",
-  "description": "Records player actions",
-  "authors": ["YourName"],
-  "contact": {},
-  "license": "MIT",
-  "icon": "assets/action_recorder/icon.png",
+
   "environment": "client",
+
   "entrypoints": {
     "client": [
       "com.sdmine.recorder.RecorderModClient"
     ]
   },
+
   "depends": {
-    "minecraft": "${minecraft_version}",
-    "fabricloader": ">=${loader_version}",
+    "minecraft": "1.21.4",
+    "fabricloader": ">=0.16.10",
     "fabric-api": "*",
     "java": ">=21"
   }

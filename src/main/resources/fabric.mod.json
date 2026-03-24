@@ -3,7 +3,7 @@
   "id": "quickstore",
   "version": "${version}",
   "name": "QuickStoreMod",
-  "description": "Right-click chest: Store AND Drop item from hand - both together! Compatible with 1.21.11 Mounts of Mayhem",
+  "description": "Right-click chest: Store AND Drop item from hand - both together!",
   "authors": ["YourName"],
   "license": "MIT",
   "environment": "client",
@@ -14,7 +14,7 @@
   },
   "depends": {
     "fabricloader": ">=${loader_version}",
-    "minecraft": "1.21.11",
+    "minecraft": "~1.21.11",
     "java": ">=21",
     "fabric-api": "*"
   }

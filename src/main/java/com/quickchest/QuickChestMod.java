@@ -82,7 +82,6 @@ public class QuickChestMod implements ClientModInitializer {
         for (int i = 0; i < chest.size(); i++) {
             if (chest.getStack(i).isEmpty()) {
                 chest.setStack(i, held.copy());
-                // 1.21.4 correct way to clear selected slot
                 client.player.getInventory().main.set(
                     client.player.getInventory().selectedSlot,
                     ItemStack.EMPTY
@@ -90,7 +89,7 @@ public class QuickChestMod implements ClientModInitializer {
                 client.player.sendMessage(
                     Text.literal("§a[QuickChest] Stored!"), true
                 );
-                LOGGER.info("[QuickChest] Stored in chest slot {}", i);
+                LOGGER.info("[QuickChest] Stored in slot {}", i);
                 return;
             }
         }

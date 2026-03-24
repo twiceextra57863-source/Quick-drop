@@ -30,8 +30,12 @@ public class ModConfig {
     }
     
     public void save() {
-        File file = new File(MinecraftClient.getInstance().runDirectory, "config/quickchest.json");
-        save(file);
+        try {
+            File file = new File(MinecraftClient.getInstance().runDirectory, "config/quickchest.json");
+            save(file);
+        } catch (Exception e) {
+            QuickChestMod.LOGGER.error("Failed to save config", e);
+        }
     }
     
     public void save(File file) {

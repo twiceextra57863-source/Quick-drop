@@ -24,15 +24,20 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
         
-      # COMPLETE CLEAN - Delete all caches
-      - name: Clean everything
+      # Kill any existing gradle daemon
+      - name: Kill Gradle Daemon
+        run: ./gradlew --stop || true
+        
+      # Complete cleanup
+      - name: Complete Cleanup
         run: |
-          echo "Cleaning Gradle caches..."
+          echo "Removing all gradle caches..."
           rm -rf ~/.gradle/caches/
           rm -rf ~/.gradle/wrapper/
           rm -rf .gradle/
           rm -rf build/
-          echo "✅ All caches cleaned"
+          rm -rf ~/.gradle/loom-cache/
+          echo "✅ All caches removed"
           
       - name: Build with Gradle
         run: |
@@ -40,11 +45,13 @@ jobs:
           
       - name: List built files
         run: |
-          echo "=== Build/libs contents ==="
-          ls -la build/libs/ 2>/dev/null || echo "build/libs not found"
-          echo ""
-          echo "=== Full build directory ==="
-          ls -la build/ 2>/dev/null || echo "build directory not found"
+          if [ -d "build/libs" ]; then
+            echo "✅ Build successful! JAR files:"
+            ls -la build/libs/
+          else
+            echo "❌ Build failed - no build/libs directory"
+            exit 1
+          fi
           
       - name: Upload JAR
         uses: actions/upload-artifact@v4

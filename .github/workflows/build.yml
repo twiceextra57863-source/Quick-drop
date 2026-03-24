@@ -36,47 +36,41 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # Gradlew generate karo agar missing hai
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: '8.8'
-
-      # Ab safely chmod karo
-      - name: Grant Gradle Execute Permission
+      # Wrapper jar download karo - gradlew script ki zaroorat nahi
+      - name: Download Gradle Wrapper JAR
         run: |
-          if [ -f "gradlew" ]; then
-            chmod +x gradlew
-            echo "✅ gradlew found and made executable"
-          else
-            echo "⚠️ gradlew not found, using system gradle"
-          fi
+          mkdir -p gradle/wrapper
+          curl -L -o gradle/wrapper/gradle-wrapper.jar \
+            "https://github.com/gradle/gradle/raw/v8.8.0/gradle/wrapper/gradle-wrapper.jar"
 
-      # Gradlew ho toh use karo, nahi toh gradle directly
+      - name: Make gradlew Executable
+        run: chmod +x gradlew
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v3
+
       - name: Build Mod
-        run: |
-          if [ -f "gradlew" ]; then
-            ./gradlew build --no-daemon
-          else
-            gradle build --no-daemon
-          fi
+        run: ./gradlew build --no-daemon --stacktrace
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Build Artifact
+      - name: Upload JAR Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: quickchest-mod-jar
-          path: build/libs/*.jar
+          name: quickchest-mod-${{ github.sha }}
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
           retention-days: 30
 
-      - name: Build Status
+      - name: Print Build Result
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then
-            echo "✅ Build successful!"
+            echo "✅ QuickChest build successful!"
+            ls -lh build/libs/
           else
-            echo "❌ Build failed!"
+            echo "❌ Build failed! Check logs."
           fi
 
   release:
@@ -94,36 +88,38 @@ jobs:
           java-version: '21'
           distribution: 'microsoft'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: '8.8'
-
-      - name: Grant Execute Permission
+      - name: Download Gradle Wrapper JAR
         run: |
-          if [ -f "gradlew" ]; then
-            chmod +x gradlew
-          fi
+          mkdir -p gradle/wrapper
+          curl -L -o gradle/wrapper/gradle-wrapper.jar \
+            "https://github.com/gradle/gradle/raw/v8.8.0/gradle/wrapper/gradle-wrapper.jar"
+
+      - name: Make gradlew Executable
+        run: chmod +x gradlew
 
       - name: Build for Release
-        run: |
-          if [ -f "gradlew" ]; then
-            ./gradlew build --no-daemon
-          else
-            gradle build --no-daemon
-          fi
+        run: ./gradlew build --no-daemon
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/libs/*.jar
+          files: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
           name: "QuickChest Mod ${{ github.ref_name }}"
           body: |
             ## QuickChest Mod ${{ github.ref_name }}
+            **Minecraft:** 1.21.4 Fabric
+            
             ### Installation
-            1. Install Fabric Loader 0.16.9+
-            2. Install Fabric API 0.110.0+1.21.4
-            3. Drop JAR in `.minecraft/mods/` folder
+            1. Install **Fabric Loader** `0.16.9+`
+            2. Install **Fabric API** `0.110.0+1.21.4`
+            3. Drop JAR into `.minecraft/mods/` folder
+            
+            ### Features
+            - Chest pe click = instant drop + auto store in **0.3s**
+            - Escape menu me **Quick Chest ON/OFF** toggle button
+            - Config save hoti hai restart ke baad bhi
           draft: false
           prerelease: false
         env:

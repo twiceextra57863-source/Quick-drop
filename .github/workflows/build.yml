@@ -1,4 +1,4 @@
-name: Build QuickChest Mod
+name: Build QuickChest
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     
     steps:
       - uses: actions/checkout@v4
@@ -18,32 +18,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       
-      - name: Setup Gradle
+      - name: Make gradlew executable
         run: chmod +x gradlew
       
-      # Use different cache key to avoid old cache
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-v3-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-v3-
-      
-      # Clear only loom cache specifically
-      - name: Clear Loom Cache
+      - name: Clean and Build
         run: |
-          rm -rf ~/.gradle/caches/fabric-loom
-          rm -rf .gradle/loom-cache
-          ./gradlew --stop || true
-      
-      - name: Build with Gradle
-        run: ./gradlew clean build --no-daemon --stacktrace --refresh-dependencies
+          ./gradlew clean
+          ./gradlew build --no-daemon --stacktrace
       
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: quickchest-mod
+          name: quickchest-${{ github.run_number }}
           path: build/libs/*.jar

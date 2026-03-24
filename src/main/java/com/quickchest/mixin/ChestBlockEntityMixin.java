@@ -17,16 +17,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ChestBlockEntity.class)
 public class ChestBlockEntityMixin {
     
-    @Inject(method = "onUse", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onUse", at = @At("HEAD"))
     private void onChestUse(PlayerEntity player, World world, BlockPos pos, Hand hand, 
                             BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
         
-        if (world.isClient && QuickChestMod.isEnabled()) {
+        if (world != null && world.isClient && QuickChestMod.isEnabled()) {
             MinecraftClient client = MinecraftClient.getInstance();
             
-            if (QuickChestMod.canPerformAction()) {
-                if (client.player != null && !client.player.getMainHandStack().isEmpty()) {
-                    // Drop the item
+            if (QuickChestMod.canPerformAction() && client.player != null) {
+                if (!client.player.getMainHandStack().isEmpty()) {
                     client.player.dropSelectedItem(false);
                     QuickChestMod.LOGGER.info("Dropped item from hand");
                 }

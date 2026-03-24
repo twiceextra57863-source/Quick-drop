@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.9.2'  // Latest as of 2026
+    id 'fabric-loom' version '1.8.11'  // Match the version in cache
     id 'maven-publish'
 }
 

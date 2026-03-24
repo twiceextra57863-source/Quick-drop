@@ -1,4 +1,4 @@
-name: Build QuickChest
+name: Build QuickChest Mod
 
 on:
   push:
@@ -21,10 +21,17 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
       
-      - name: Clean and Build
+      - name: Clean Gradle Properties
         run: |
-          ./gradlew clean
-          ./gradlew build --no-daemon --stacktrace
+          # Remove any problematic JVM args
+          if [ -f gradle.properties ]; then
+            sed -i '' '/-Xdock/d' gradle.properties || true
+          fi
+          cat gradle.properties || echo "No gradle.properties"
+      
+      - name: Build
+        run: |
+          ./gradlew clean build --no-daemon --stacktrace
       
       - name: Upload JAR
         uses: actions/upload-artifact@v4

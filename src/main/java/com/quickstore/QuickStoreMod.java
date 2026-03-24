@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.slot.SlotActionType;
@@ -15,7 +14,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.lwjgl.glfw.GLFW;
 
@@ -26,17 +24,12 @@ public class QuickStoreMod implements ClientModInitializer {
     private static KeyBinding toggleKey;
     private static boolean isProcessing = false;
     private static long lastActionTime = 0;
-    private static final long COOLDOWN_MS = 1000; // 1 second cooldown
+    private static final long COOLDOWN_MS = 1000;
     
     @Override
     public void onInitializeClient() {
-        System.out.println("========================================");
-        System.out.println("QuickStoreMod v1.0.0 Loaded!");
-        System.out.println("Right-click on chest with item in hand:");
-        System.out.println("  → Item STORES in chest");
-        System.out.println("  → Item DROPS on ground");
-        System.out.println("  → BOTH actions happen together!");
-        System.out.println("========================================");
+        System.out.println("[QuickStoreMod] Loaded for Minecraft 1.21.1!");
+        System.out.println("[QuickStoreMod] Right-click chest: Store + Drop item together!");
         
         // Register toggle key (K)
         toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -46,7 +39,7 @@ public class QuickStoreMod implements ClientModInitializer {
             "category.quickstore"
         ));
         
-        // Handle key presses
+        // Key handler
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null && toggleKey.wasPressed()) {
                 enabled = !enabled;
@@ -57,35 +50,23 @@ public class QuickStoreMod implements ClientModInitializer {
             }
         });
         
-        // Register right-click handler
+        // Right-click handler
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (!enabled) return;
-            if (client.player == null) return;
-            if (client.interactionManager == null) return;
-            if (isProcessing) return;
+            if (!enabled || isProcessing) return;
+            if (client.player == null || client.interactionManager == null) return;
             
-            // Check if right-click is pressed
             if (client.options.useKey.isPressed()) {
                 handleRightClick(client);
             }
         });
-        
-        System.out.println("[QuickStore] Controls: Press K to toggle ON/OFF");
-        System.out.println("[QuickStore] COOLDOWN: " + COOLDOWN_MS + "ms");
     }
     
     private void handleRightClick(MinecraftClient client) {
-        // Prevent multiple triggers
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastActionTime < COOLDOWN_MS) {
-            return;
-        }
+        if (currentTime - lastActionTime < COOLDOWN_MS) return;
         
-        // Check what player is looking at
         HitResult hit = client.crosshairTarget;
-        if (hit == null || hit.getType() != HitResult.Type.BLOCK) {
-            return;
-        }
+        if (hit == null || hit.getType() != HitResult.Type.BLOCK) return;
         
         BlockHitResult blockHit = (BlockHitResult) hit;
         World world = client.world;
@@ -93,7 +74,6 @@ public class QuickStoreMod implements ClientModInitializer {
         
         if (world == null) return;
         
-        // Check if looking at chest
         String blockName = world.getBlockState(pos).getBlock().toString().toLowerCase();
         boolean isChest = blockName.contains("chest") || 
                           blockName.contains("barrel") || 
@@ -101,20 +81,9 @@ public class QuickStoreMod implements ClientModInitializer {
         
         if (!isChest) return;
         
-        // Get item in hand
         ItemStack heldItem = client.player.getMainHandStack();
+        if (heldItem.isEmpty()) return;
         
-        if (heldItem.isEmpty()) {
-            if (currentTime - lastActionTime > COOLDOWN_MS) {
-                client.player.sendMessage(
-                    Text.literal("§e⚡ No item in hand!"),
-                    true
-                );
-            }
-            return;
-        }
-        
-        // Mark as processing to prevent spam
         isProcessing = true;
         lastActionTime = currentTime;
         
@@ -122,116 +91,77 @@ public class QuickStoreMod implements ClientModInitializer {
         int itemCount = heldItem.getCount();
         
         client.player.sendMessage(
-            Text.literal("§e⚡ QuickStore: Processing " + itemName + " x" + itemCount),
+            Text.literal("§e⚡ QuickStore: " + itemName + " x" + itemCount),
             true
         );
         
-        // Schedule both actions with a small delay
         new Thread(() -> {
             try {
-                Thread.sleep(100); // Small delay to ensure chest opens
-                
+                Thread.sleep(150);
                 client.execute(() -> {
-                    // FIRST: Open chest if not already open
+                    // Open chest if not open
                     if (!(client.player.currentScreenHandler instanceof GenericContainerScreenHandler)) {
-                        // Simulate opening chest
                         client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, blockHit);
                     }
                     
-                    // Small delay for chest to open
-                    try {
-                        Thread.sleep(150);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    try { Thread.sleep(100); } catch (InterruptedException e) {}
                     
                     client.execute(() -> {
-                        // DO BOTH ACTIONS TOGETHER
                         storeItemInChest(client, heldItem, itemName, itemCount);
                         dropItemFromHand(client, heldItem, itemName, itemCount);
-                        
                         isProcessing = false;
                     });
                 });
-                
             } catch (Exception e) {
-                e.printStackTrace();
                 isProcessing = false;
             }
         }).start();
     }
     
-    private void storeItemInChest(MinecraftClient client, ItemStack item, String itemName, int count) {
-        if (client.player == null || client.interactionManager == null) return;
-        
-        // Check if chest container is open
-        if (!(client.player.currentScreenHandler instanceof GenericContainerScreenHandler)) {
-            client.player.sendMessage(
-                Text.literal("§c✗ Could not open chest!"),
-                true
-            );
+    private void storeItemInChest(MinecraftClient client, ItemStack item, String name, int count) {
+        if (client.player == null || !(client.player.currentScreenHandler instanceof GenericContainerScreenHandler)) {
             return;
         }
         
         try {
-            // Get hotbar slot (0-8) and convert to inventory slot (36 + hotbar slot)
             int hotbarSlot = client.player.getInventory().selectedSlot;
             int sourceSlot = hotbarSlot + 36;
             
-            // Shift+click to move to chest
             client.interactionManager.clickSlot(
                 client.player.currentScreenHandler.syncId,
                 sourceSlot,
-                0,  // Button
-                SlotActionType.QUICK_MOVE,  // Shift+click
+                0,
+                SlotActionType.QUICK_MOVE,
                 client.player
             );
             
-            client.player.sendMessage(
-                Text.literal("§a✔ [STORED] " + itemName + " x" + count + " in chest!"),
-                true
-            );
-            
+            client.player.sendMessage(Text.literal("§a✔ [STORED] " + name + " x" + count), true);
         } catch (Exception e) {
-            client.player.sendMessage(
-                Text.literal("§c✗ Failed to store: " + e.getMessage()),
-                true
-            );
+            client.player.sendMessage(Text.literal("§c✗ Store failed"), true);
         }
     }
     
-    private void dropItemFromHand(MinecraftClient client, ItemStack item, String itemName, int count) {
-        if (client.player == null || client.interactionManager == null) return;
+    private void dropItemFromHand(MinecraftClient client, ItemStack item, String name, int count) {
+        if (client.player == null) return;
         
         try {
             int hotbarSlot = client.player.getInventory().selectedSlot;
             int sourceSlot = hotbarSlot + 36;
             
-            int windowId = 0;
-            if (client.player.currentScreenHandler != null) {
-                windowId = client.player.currentScreenHandler.syncId;
-            }
+            int windowId = client.player.currentScreenHandler != null ? 
+                          client.player.currentScreenHandler.syncId : 0;
             
-            // Drop entire stack on ground
-            // Button 1 + THROW = drop entire stack
             client.interactionManager.clickSlot(
                 windowId,
                 sourceSlot,
-                1,  // Button 1 = drop whole stack
+                1,
                 SlotActionType.THROW,
                 client.player
             );
             
-            client.player.sendMessage(
-                Text.literal("§c✘ [DROPPED] " + itemName + " x" + count + " on ground!"),
-                true
-            );
-            
+            client.player.sendMessage(Text.literal("§c✘ [DROPPED] " + name + " x" + count), true);
         } catch (Exception e) {
-            client.player.sendMessage(
-                Text.literal("§c✗ Failed to drop: " + e.getMessage()),
-                true
-            );
+            client.player.sendMessage(Text.literal("§c✗ Drop failed"), true);
         }
     }
-                                                                }
+}

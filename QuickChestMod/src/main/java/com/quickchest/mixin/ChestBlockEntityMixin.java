@@ -1,0 +1,1 @@
+package com.quickchest.mixin; public class ChestBlockEntityMixin {}

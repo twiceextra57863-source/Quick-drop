@@ -1,0 +1,1 @@
+package com.quickchest; public class QuickChestMod {}

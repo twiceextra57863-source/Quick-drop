@@ -2,10 +2,9 @@
   "schemaVersion": 1,
   "id": "quickchest",
   "version": "${version}",
-  "name": "Quick Chest",
-  "description": "Auto drop items when clicking chest - 0.3 second delay",
+  "name": "QuickChest Mod",
+  "description": "Click chest to instantly drop and store item in 0.3s!",
   "authors": ["YourName"],
-  "contact": {},
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
@@ -17,9 +16,9 @@
     "quickchest.mixins.json"
   ],
   "depends": {
-    "minecraft": ">=1.21.4",
     "fabricloader": ">=0.16.9",
-    "fabric-api": ">=0.110.0",
+    "fabric-api": "*",
+    "minecraft": "~1.21.4",
     "java": ">=21"
   }
 }

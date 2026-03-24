@@ -2,22 +2,24 @@
   "schemaVersion": 1,
   "id": "quickstore",
   "version": "${version}",
-  "name": "Quick Store Mod",
-  "description": "A quick store mod for Fabric",
-  "authors": ["Flame AI"],
-  "contact": {},
+  "name": "QuickStoreMod",
+  "description": "Right-click chest to instantly STORE and DROP the item in your hand - both actions together!",
+  "authors": ["YourName"],
+  "contact": {
+    "homepage": "https://github.com/yourname/quickstore"
+  },
   "license": "MIT",
   "icon": "assets/quickstore/icon.png",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
-    "main": [
+    "client": [
       "com.quickstore.QuickStoreMod"
     ]
   },
   "depends": {
-    "fabricloader": ">=0.15.0",
-    "minecraft": "~1.20.4",
-    "java": ">=17",
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=21",
     "fabric-api": "*"
   }
 }

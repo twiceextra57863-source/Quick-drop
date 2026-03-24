@@ -6,14 +6,17 @@
   "description": "Click chest to instantly drop and store item in 0.3s!",
   "authors": ["YourName"],
   "license": "MIT",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {
     "client": [
       "com.quickchest.QuickChestMod"
     ]
   },
   "mixins": [
-    "quickchest.mixins.json"
+    {
+      "config": "quickchest.mixins.json",
+      "environment": "client"
+    }
   ],
   "depends": {
     "fabricloader": ">=0.16.9",

@@ -25,7 +25,7 @@ public class QuickStoreMod implements ClientModInitializer {
     
     @Override
     public void onInitializeClient() {
-        System.out.println("[QuickStoreMod] Loaded!");
+        System.out.println("[QuickStoreMod] Loaded for Minecraft 1.21.11!");
         
         toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.quickstore.toggle",

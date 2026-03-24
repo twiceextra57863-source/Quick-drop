@@ -1,25 +1,23 @@
 {
   "schemaVersion": 1,
-  "id": "quickchest",
+  "id": "action_recorder",
   "version": "${version}",
-  "name": "QuickChest Mod",
-  "description": "Click chest to instantly drop held item and store it in 0.3 seconds!",
+  "name": "Action Recorder",
+  "description": "Records player actions",
   "authors": ["YourName"],
   "contact": {},
   "license": "MIT",
+  "icon": "assets/action_recorder/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
-      "com.quickchest.QuickChestMod"
+      "com.sdmine.recorder.RecorderModClient"
     ]
   },
-  "mixins": [
-    "quickchest.mixins.json"
-  ],
   "depends": {
-    "fabricloader": ">=0.16.9",
+    "minecraft": "${minecraft_version}",
+    "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
-    "minecraft": "~1.21.4",
     "java": ">=21"
   }
 }

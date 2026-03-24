@@ -1,1 +1,25 @@
-{}
+{
+  "schemaVersion": 1,
+  "id": "quickchest",
+  "version": "${version}",
+  "name": "QuickChest Mod",
+  "description": "Click chest to instantly drop held item and store it in 0.3 seconds!",
+  "authors": ["YourName"],
+  "contact": {},
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.quickchest.QuickChestMod"
+    ]
+  },
+  "mixins": [
+    "quickchest.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.9",
+    "fabric-api": "*",
+    "minecraft": "~1.21.4",
+    "java": ">=21"
+  }
+}

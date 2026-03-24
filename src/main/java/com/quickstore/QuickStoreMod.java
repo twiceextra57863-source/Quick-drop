@@ -13,8 +13,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.lwjgl.glfw.GLFW;
 
 public class QuickStoreMod implements ClientModInitializer {
@@ -28,10 +26,10 @@ public class QuickStoreMod implements ClientModInitializer {
     
     @Override
     public void onInitializeClient() {
-        System.out.println("[QuickStoreMod] Loaded for Minecraft 1.21.1!");
-        System.out.println("[QuickStoreMod] Right-click chest: Store + Drop item together!");
+        System.out.println("[QuickStoreMod] Loaded for Minecraft 1.21.11!");
+        System.out.println("[QuickStoreMod] Features: Nautilus, Spear, Locator Bar supported!");
         
-        // Register toggle key (K)
+        // Toggle key (K)
         toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.quickstore.toggle",
             InputUtil.Type.KEYSYM,
@@ -69,15 +67,17 @@ public class QuickStoreMod implements ClientModInitializer {
         if (hit == null || hit.getType() != HitResult.Type.BLOCK) return;
         
         BlockHitResult blockHit = (BlockHitResult) hit;
-        World world = client.world;
-        BlockPos pos = blockHit.getBlockPos();
+        var world = client.world;
+        var pos = blockHit.getBlockPos();
         
         if (world == null) return;
         
+        // Check for chest (includes new 1.21.11 blocks)
         String blockName = world.getBlockState(pos).getBlock().toString().toLowerCase();
         boolean isChest = blockName.contains("chest") || 
                           blockName.contains("barrel") || 
-                          blockName.contains("shulker");
+                          blockName.contains("shulker") ||
+                          blockName.contains("copper_chest"); // 1.21.11 copper chest
         
         if (!isChest) return;
         

@@ -1,1 +1,5 @@
-{}
+{
+  "quickchest.toggle.on":  "§aQuick Chest: ON",
+  "quickchest.toggle.off": "§cQuick Chest: OFF",
+  "quickchest.button":     "Quick Chest"
+}

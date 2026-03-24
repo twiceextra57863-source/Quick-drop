@@ -1,0 +1,1 @@
+package com.quickchest.config; public class QuickChestConfig {}

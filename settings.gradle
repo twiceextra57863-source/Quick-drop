@@ -5,5 +5,8 @@ pluginManagement {
             url = 'https://maven.fabricmc.net/'
         }
         gradlePluginPortal()
+        mavenCentral()
     }
 }
+
+rootProject.name = "quickstore"

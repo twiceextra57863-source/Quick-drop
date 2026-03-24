@@ -25,12 +25,10 @@ public abstract class GameMenuScreenMixin extends Screen {
         int x = this.width / 2 - btnW / 2;
         int y = this.height / 4 - 24;
 
-        String label = QuickChestMod.isEnabled()
-            ? "§aQuick Chest: ON"
-            : "§cQuick Chest: OFF";
-
         ButtonWidget btn = ButtonWidget.builder(
-            Text.literal(label),
+            Text.literal(QuickChestMod.isEnabled()
+                ? "§aQuick Chest: ON"
+                : "§cQuick Chest: OFF"),
             button -> {
                 QuickChestMod.toggle();
                 button.setMessage(Text.literal(

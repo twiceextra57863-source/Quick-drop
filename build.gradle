@@ -1,6 +1,5 @@
 plugins {
     id 'fabric-loom' version '1.7.4'
-    id 'maven-publish'
 }
 
 version = "1.0.0"
@@ -24,8 +23,4 @@ dependencies {
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 21
 }

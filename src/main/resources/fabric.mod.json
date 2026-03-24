@@ -3,11 +3,10 @@
   "id": "quickchest",
   "version": "${version}",
   "name": "Quick Chest",
-  "description": "Auto drop + store items when clicking chest - 0.3 second delay",
+  "description": "Auto drop items when clicking chest - 0.3 second delay",
   "authors": ["YourName"],
   "contact": {},
   "license": "MIT",
-  "icon": "assets/quickchest/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
@@ -18,9 +17,9 @@
     "quickchest.mixins.json"
   ],
   "depends": {
-    "minecraft": "${minecraft_version}",
-    "fabricloader": ">=${loader_version}",
-    "fabric-api": "*",
+    "minecraft": ">=1.21.4",
+    "fabricloader": ">=0.16.9",
+    "fabric-api": ">=0.110.0",
     "java": ">=21"
   }
 }

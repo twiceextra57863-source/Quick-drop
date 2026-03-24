@@ -17,7 +17,6 @@ import org.lwjgl.glfw.GLFW;
 
 public class QuickStoreMod implements ClientModInitializer {
     
-    public static final String MOD_ID = "quickstore";
     private static boolean enabled = true;
     private static KeyBinding toggleKey;
     private static boolean isProcessing = false;
@@ -27,9 +26,7 @@ public class QuickStoreMod implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         System.out.println("[QuickStoreMod] Loaded for Minecraft 1.21.11!");
-        System.out.println("[QuickStoreMod] Features: Nautilus, Spear, Locator Bar supported!");
         
-        // Toggle key (K)
         toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.quickstore.toggle",
             InputUtil.Type.KEYSYM,
@@ -37,7 +34,6 @@ public class QuickStoreMod implements ClientModInitializer {
             "category.quickstore"
         ));
         
-        // Key handler
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null && toggleKey.wasPressed()) {
                 enabled = !enabled;
@@ -48,11 +44,9 @@ public class QuickStoreMod implements ClientModInitializer {
             }
         });
         
-        // Right-click handler
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (!enabled || isProcessing) return;
             if (client.player == null || client.interactionManager == null) return;
-            
             if (client.options.useKey.isPressed()) {
                 handleRightClick(client);
             }
@@ -72,12 +66,10 @@ public class QuickStoreMod implements ClientModInitializer {
         
         if (world == null) return;
         
-        // Check for chest (includes new 1.21.11 blocks)
         String blockName = world.getBlockState(pos).getBlock().toString().toLowerCase();
         boolean isChest = blockName.contains("chest") || 
                           blockName.contains("barrel") || 
-                          blockName.contains("shulker") ||
-                          blockName.contains("copper_chest"); // 1.21.11 copper chest
+                          blockName.contains("shulker");
         
         if (!isChest) return;
         
@@ -90,22 +82,16 @@ public class QuickStoreMod implements ClientModInitializer {
         String itemName = heldItem.getName().getString();
         int itemCount = heldItem.getCount();
         
-        client.player.sendMessage(
-            Text.literal("§e⚡ QuickStore: " + itemName + " x" + itemCount),
-            true
-        );
+        client.player.sendMessage(Text.literal("§e⚡ QuickStore: " + itemName + " x" + itemCount), true);
         
         new Thread(() -> {
             try {
                 Thread.sleep(150);
                 client.execute(() -> {
-                    // Open chest if not open
                     if (!(client.player.currentScreenHandler instanceof GenericContainerScreenHandler)) {
                         client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, blockHit);
                     }
-                    
                     try { Thread.sleep(100); } catch (InterruptedException e) {}
-                    
                     client.execute(() -> {
                         storeItemInChest(client, heldItem, itemName, itemCount);
                         dropItemFromHand(client, heldItem, itemName, itemCount);
@@ -119,22 +105,14 @@ public class QuickStoreMod implements ClientModInitializer {
     }
     
     private void storeItemInChest(MinecraftClient client, ItemStack item, String name, int count) {
-        if (client.player == null || !(client.player.currentScreenHandler instanceof GenericContainerScreenHandler)) {
-            return;
-        }
-        
+        if (client.player == null || !(client.player.currentScreenHandler instanceof GenericContainerScreenHandler)) return;
         try {
             int hotbarSlot = client.player.getInventory().selectedSlot;
             int sourceSlot = hotbarSlot + 36;
-            
             client.interactionManager.clickSlot(
-                client.player.currentScreenHandler.syncId,
-                sourceSlot,
-                0,
-                SlotActionType.QUICK_MOVE,
-                client.player
+                client.player.currentScreenHandler.syncId, sourceSlot, 0,
+                SlotActionType.QUICK_MOVE, client.player
             );
-            
             client.player.sendMessage(Text.literal("§a✔ [STORED] " + name + " x" + count), true);
         } catch (Exception e) {
             client.player.sendMessage(Text.literal("§c✗ Store failed"), true);
@@ -143,22 +121,11 @@ public class QuickStoreMod implements ClientModInitializer {
     
     private void dropItemFromHand(MinecraftClient client, ItemStack item, String name, int count) {
         if (client.player == null) return;
-        
         try {
             int hotbarSlot = client.player.getInventory().selectedSlot;
             int sourceSlot = hotbarSlot + 36;
-            
-            int windowId = client.player.currentScreenHandler != null ? 
-                          client.player.currentScreenHandler.syncId : 0;
-            
-            client.interactionManager.clickSlot(
-                windowId,
-                sourceSlot,
-                1,
-                SlotActionType.THROW,
-                client.player
-            );
-            
+            int windowId = client.player.currentScreenHandler != null ? client.player.currentScreenHandler.syncId : 0;
+            client.interactionManager.clickSlot(windowId, sourceSlot, 1, SlotActionType.THROW, client.player);
             client.player.sendMessage(Text.literal("§c✘ [DROPPED] " + name + " x" + count), true);
         } catch (Exception e) {
             client.player.sendMessage(Text.literal("§c✗ Drop failed"), true);

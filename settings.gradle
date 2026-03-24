@@ -8,4 +8,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "quickchest"
+rootProject.name = "action_recorder"

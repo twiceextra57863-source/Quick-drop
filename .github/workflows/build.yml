@@ -3,8 +3,6 @@ name: Build Mod
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -21,14 +19,16 @@ jobs:
         distribution: 'temurin'
         java-version: '21'
     
-    - name: Make gradlew executable
-      run: chmod +x gradlew
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.8'
     
     - name: Build with Gradle
-      run: ./gradlew build
+      run: gradle build
     
     - name: Upload JAR
       uses: actions/upload-artifact@v4
       with:
-        name: mod-jar
+        name: quickstore-mod
         path: build/libs/*.jar

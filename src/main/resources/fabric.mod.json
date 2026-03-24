@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "quickstore",
+  "version": "${version}",
+  "name": "Quick Store Mod",
+  "description": "A quick store mod for Fabric",
+  "authors": ["Flame AI"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/quickstore/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.quickstore.QuickStoreMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.4",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}

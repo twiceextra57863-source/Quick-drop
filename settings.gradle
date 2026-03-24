@@ -1,20 +1,9 @@
 pluginManagement {
     repositories {
         maven {
-            name = 'FabricMC'
+            name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }
-        maven {
-            name = 'Forge'
-            url = 'https://files.minecraftforge.net/maven/'
-        }
-        mavenCentral()
         gradlePluginPortal()
     }
-    // Loom version yahan bhi declare karo
-    plugins {
-        id 'fabric-loom' version "${loom_version}"
-    }
 }
-
-rootProject.name = "QuickChestMod"

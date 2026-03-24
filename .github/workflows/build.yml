@@ -3,8 +3,6 @@ name: Build QuickChest Mod
 on:
   push:
     branches: [ main, master, dev ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -24,11 +22,29 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
         
+      - name: Clean all caches
+        run: |
+          ./gradlew --stop || true
+          rm -rf ~/.gradle/caches/
+          rm -rf ~/.gradle/wrapper/
+          rm -rf .gradle/
+          rm -rf build/
+          
       - name: Build with Gradle
-        run: ./gradlew clean build --no-daemon --stacktrace
-        
+        run: |
+          ./gradlew clean build --no-daemon --stacktrace --refresh-dependencies --info
+          
+      - name: List built files
+        run: |
+          echo "=== Build Directory ==="
+          ls -la build/ || echo "Build directory not found"
+          echo ""
+          echo "=== JAR Files ==="
+          ls -la build/libs/ || echo "No JAR files found"
+          
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: quickchest-${{ github.run_number }}
+          name: quickchest-mod
           path: build/libs/*.jar
+          if-no-files-found: warn

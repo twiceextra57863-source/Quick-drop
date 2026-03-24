@@ -1,85 +1,37 @@
 plugins {
     id 'fabric-loom' version '1.8.13'
-    id 'maven-publish'
-}
-
-base {
-    archivesName = project.archives_base_name
+    id 'java'
 }
 
 version = project.mod_version
 group = project.maven_group
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
-loom {
-    splitEnvironmentSourceSets()
-    
-    mods {
-        "quickchest" {
-            sourceSet sourceSets.main
-        }
-    }
-    
-    // Force download of Minecraft client jars
-    runs {
-        client {
-            client()
-            setConfigName("Minecraft Client")
-            ideConfigGenerated(true)
-            runDir("run")
-        }
-    }
+base {
+    archivesName = project.archives_base_name
 }
 
 repositories {
     mavenCentral()
     maven {
-        name = "Fabric"
-        url = "https://maven.fabricmc.net/"
+        name = 'FabricMC'
+        url = 'https://maven.fabricmc.net/'
+    }
+    maven {
+        name = 'Mojang'
+        url = 'https://libraries.minecraft.net/'
     }
 }
 
 dependencies {
-    // Minecraft
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    
-    // Fabric Loader
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    
-    // Fabric API - MUST HAVE
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    
-    // Include Fabric API in the JAR
-    include "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-}
-
-processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
-    filteringCharset "UTF-8"
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.release = 21
-    options.encoding = "UTF-8"
 }
 
 java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
     withSourcesJar()
 }
 
@@ -87,4 +39,9 @@ jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}" }
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+    it.options.encoding = 'UTF-8'
 }

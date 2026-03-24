@@ -1,47 +1,19 @@
 plugins {
-    id 'fabric-loom' version '1.9-SNAPSHOT'
-    id 'java'
+    id 'fabric-loom' version '1.7-SNAPSHOT' apply false
 }
 
-version = project.mod_version
-group = project.maven_group
-
-base {
-    archivesName = project.archives_base_name
-}
-
-repositories {
-    mavenCentral()
-    maven {
-        name = 'FabricMC'
-        url = 'https://maven.fabricmc.net/'
+// Or agar upar wala kaam na kare toh:
+buildscript {
+    repositories {
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        gradlePluginPortal()
     }
-    maven {
-        name = 'Mojang'
-        url = 'https://libraries.minecraft.net/'
+    dependencies {
+        classpath 'net.fabricmc:fabric-loom:1.7-SNAPSHOT'
     }
 }
 
-dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-    withSourcesJar()
-}
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 21
-    it.options.encoding = 'UTF-8'
-}
+apply plugin: 'fabric-loom'

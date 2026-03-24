@@ -30,24 +30,16 @@ public class ChestInteractMixin {
         BlockHitResult hit,
         CallbackInfoReturnable<ActionResult> cir
     ) {
-        // Server side pe kuch mat karo
         if (!world.isClient()) return;
         if (!QuickChestMod.isEnabled()) return;
 
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null) return;
-
-        // Sirf local player ke liye
         if (!player.getUuid().equals(client.player.getUuid())) return;
-
-        // Haath khali hai toh normal chest open hone do
         if (client.player.getMainHandStack().isEmpty()) return;
 
-        // Quick drop+store karo
         boolean handled = QuickChestMod.handleChestClick(pos);
-
         if (handled) {
-            // Chest GUI open hone se roko
             cir.setReturnValue(ActionResult.SUCCESS);
             cir.cancel();
         }

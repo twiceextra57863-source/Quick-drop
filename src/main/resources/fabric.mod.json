@@ -8,7 +8,7 @@
 
   "entrypoints": {
     "client": [
-      "com.sdmine.recorder.RecorderModClient"
+      "com.quickchest.QuickChestMod"
     ]
   },
 

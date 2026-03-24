@@ -5,10 +5,7 @@
   "name": "Quick Chest",
   "description": "Auto drop + store items when clicking chest - 0.3 second delay",
   "authors": ["YourName"],
-  "contact": {
-    "homepage": "https://github.com/yourname/quickchest",
-    "sources": "https://github.com/yourname/quickchest"
-  },
+  "contact": {},
   "license": "MIT",
   "icon": "assets/quickchest/icon.png",
   "environment": "client",
@@ -25,12 +22,5 @@
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
     "java": ">=21"
-  },
-  "custom": {
-    "modmenu": {
-      "links": {
-        "modmenu.discord": "https://discord.gg/xxx"
-      }
-    }
   }
 }

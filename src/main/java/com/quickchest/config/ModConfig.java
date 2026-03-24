@@ -3,6 +3,7 @@ package com.quickchest.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.quickchest.QuickChestMod;
+import net.minecraft.client.MinecraftClient;
 
 import java.io.File;
 import java.io.FileReader;
@@ -12,7 +13,6 @@ import java.io.IOException;
 public class ModConfig {
     public boolean enabled = true;
     public int cooldownMs = 300;
-    public boolean dropBeforeStore = true;
     
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     

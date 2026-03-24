@@ -3,11 +3,8 @@
   "id": "quickstore",
   "version": "${version}",
   "name": "QuickStoreMod",
-  "description": "Right-click chest to instantly STORE and DROP the item in your hand - both actions together!",
+  "description": "Right-click chest: Store AND Drop item from hand - both together!",
   "authors": ["YourName"],
-  "contact": {
-    "homepage": "https://github.com/yourname/quickstore"
-  },
   "license": "MIT",
   "icon": "assets/quickstore/icon.png",
   "environment": "client",

@@ -1,53 +1,45 @@
 plugins {
-    id 'fabric-loom' version '1.9.2'
-    id 'maven-publish'
+    id 'fabric-loom' version '1.8.13'
+    id 'java'
 }
 
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
+group = 'com.sdmine'
+version = '1.0.0'
+archivesBaseName = 'action-recorder'
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "action-recorder" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
 
 repositories {
+    maven { url = "https://maven.fabricmc.net/" }
     mavenCentral()
-    maven {
-        name = "Fabric"
-        url = "https://maven.fabricmc.net/"
-    }
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-}
+    minecraft "com.mojang:minecraft:1.21.4"
 
-processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
-    filteringCharset "UTF-8"
+    // ✅ YARN mappings (FIX)
+    mappings "net.fabricmc:yarn:1.21.4+build.1:v2"
 
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
-    }
+    modImplementation "net.fabricmc:fabric-loader:0.16.10"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.119.3+1.21.4"
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 21
-}
-
-java {
-    withSourcesJar()
-}
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}"}
-    }
+    options.release = 21
+    options.encoding = "UTF-8"
 }

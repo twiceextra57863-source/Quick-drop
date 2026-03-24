@@ -27,6 +27,7 @@ public class QuickChestMod implements ClientModInitializer {
     public void onInitializeClient() {
         LOGGER.info("Quick Chest Mod Initialized!");
         
+        // Load config
         File configFile = new File(MinecraftClient.getInstance().runDirectory, "config/quickchest.json");
         config = ModConfig.load(configFile);
         isEnabled = config.enabled;
@@ -39,6 +40,7 @@ public class QuickChestMod implements ClientModInitializer {
             "category.quickchest"
         ));
         
+        // Tick event for keybinding
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (toggleKeyBinding.wasPressed()) {
                 toggleMod();
@@ -46,6 +48,7 @@ public class QuickChestMod implements ClientModInitializer {
         });
         
         LOGGER.info("Quick Chest Mod - Press K to toggle ON/OFF");
+        LOGGER.info("Quick Chest Mod - Current status: " + (isEnabled ? "ON" : "OFF"));
     }
     
     public static boolean isEnabled() {
@@ -61,6 +64,7 @@ public class QuickChestMod implements ClientModInitializer {
     
     public static boolean canPerformAction() {
         if (!isEnabled) return false;
+        
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastClickTime >= COOLDOWN_MS) {
             lastClickTime = currentTime;

@@ -37,10 +37,18 @@ repositories {
 }
 
 dependencies {
+    // Minecraft
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    
+    // Fabric Loader
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    
+    // Fabric API - IMPORTANT: Use correct version
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    
+    // Include Fabric API in JAR
+    include modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
 }
 
 processResources {

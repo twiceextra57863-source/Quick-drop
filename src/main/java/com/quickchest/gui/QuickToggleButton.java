@@ -14,4 +14,8 @@ public class QuickToggleButton {
         .dimensions(x, y, width, height)
         .build();
     }
+    
+    public static void updateButtonText(ButtonWidget button, boolean isEnabled) {
+        button.setMessage(Text.literal("Quick Chest: " + (isEnabled ? "ON" : "OFF")));
+    }
 }

@@ -1,7 +1,19 @@
 pluginManagement {
     repositories {
-        maven { url 'https://maven.fabricmc.net/' }
+        maven {
+            name = 'FabricMC'
+            url = 'https://maven.fabricmc.net/'
+        }
+        maven {
+            name = 'Forge'
+            url = 'https://files.minecraftforge.net/maven/'
+        }
+        mavenCentral()
         gradlePluginPortal()
+    }
+    // Loom version yahan bhi declare karo
+    plugins {
+        id 'fabric-loom' version "${loom_version}"
     }
 }
 

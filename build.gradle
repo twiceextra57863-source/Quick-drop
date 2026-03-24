@@ -1,6 +1,6 @@
 plugins {
-    id 'fabric-loom' version '1.8.13'
-    id 'java'
+    id 'fabric-loom' version '1.7.12'  // Compatible with Gradle 8.7
+    id 'maven-publish'
 }
 
 group = 'com.sdmine'

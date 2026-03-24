@@ -27,7 +27,6 @@ public class QuickStoreMod implements ClientModInitializer {
     public void onInitializeClient() {
         System.out.println("[QuickStoreMod] Loaded for Minecraft 1.21.11!");
         
-        // Register keybinding
         toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.quickstore.toggle",
             InputUtil.Type.KEYSYM,
@@ -35,7 +34,6 @@ public class QuickStoreMod implements ClientModInitializer {
             "category.quickstore"
         ));
         
-        // Key handler
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null && toggleKey.wasPressed()) {
                 enabled = !enabled;
@@ -46,7 +44,6 @@ public class QuickStoreMod implements ClientModInitializer {
             }
         });
         
-        // Right-click handler
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (!enabled || isProcessing) return;
             if (client.player == null || client.interactionManager == null) return;

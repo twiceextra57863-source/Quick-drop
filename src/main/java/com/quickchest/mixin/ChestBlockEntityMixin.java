@@ -21,13 +21,15 @@ public class ChestBlockEntityMixin {
     private void onChestUse(PlayerEntity player, World world, BlockPos pos, Hand hand, 
                             BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
         
-        if (world.isClient && QuickChestMod.isEnabled() && QuickChestMod.canPerformAction()) {
+        if (world.isClient && QuickChestMod.isEnabled()) {
             MinecraftClient client = MinecraftClient.getInstance();
             
-            if (client.player != null && !client.player.getMainHandStack().isEmpty()) {
-                // Drop the item
-                client.player.dropSelectedItem(false);
-                QuickChestMod.LOGGER.info("Dropped item from hand");
+            if (QuickChestMod.canPerformAction()) {
+                if (client.player != null && !client.player.getMainHandStack().isEmpty()) {
+                    // Drop the item
+                    client.player.dropSelectedItem(false);
+                    QuickChestMod.LOGGER.info("Dropped item from hand");
+                }
             }
         }
     }

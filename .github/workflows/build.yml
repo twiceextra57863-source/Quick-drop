@@ -3,8 +3,6 @@ name: Build QuickChest Mod
 on:
   push:
     branches: [ main, master, dev ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -14,99 +12,32 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: List repository contents
-        run: |
-          echo "=== Repository Structure ==="
-          ls -la
-          echo ""
-          echo "=== Gradle Wrapper ==="
-          ls -la gradle/wrapper/ 2>/dev/null || echo "gradle/wrapper/ not found"
-
-      - name: Set up Java 21
+        
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-
-      - name: Make gradlew Executable
+          
+      - name: Make gradlew executable
         run: chmod +x gradlew
         
-      - name: Check Gradle Version
-        run: ./gradlew --version
-        
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+            
       - name: Build with Gradle
         run: ./gradlew build --no-daemon --stacktrace
         
-      - name: Check build output
-        run: |
-          echo "=== Checking build/libs ==="
-          if [ -d "build/libs" ]; then
-            ls -la build/libs/
-            echo "✅ JAR files found"
-          else
-            echo "❌ build/libs directory does not exist!"
-            echo ""
-            echo "=== What's in build/ directory? ==="
-            ls -la build/ 2>/dev/null || echo "build directory doesn't exist"
-          fi
-
       - name: Upload JAR
         uses: actions/upload-artifact@v4
-        if: success()
         with:
           name: quickchest-${{ github.run_number }}
           path: build/libs/*.jar
-          if-no-files-found: warn
-          retention-days: 30
-
-  release:
-    runs-on: ubuntu-latest
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Make gradlew Executable
-        run: chmod +x gradlew
-
-      - name: Build Release JAR
-        run: ./gradlew build --no-daemon
-
-      - name: List built files
-        run: ls -la build/libs/
-
-      - name: Publish Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: build/libs/*.jar
-          name: "QuickChest ${{ github.ref_name }}"
-          body: |
-            ## QuickChest Mod ${{ github.ref_name }}
-            **Minecraft:** `1.21.4` | **Loader:** Fabric
-
-            ### Installation
-            1. **Fabric Loader** `0.16.9+` install karo
-            2. **Fabric API** `0.110.0+1.21.4` install karo  
-            3. JAR file `.minecraft/mods/` me daalo
-
-            ### Features
-            - Chest click = **Drop + Auto-store** in 0.3s
-            - Escape menu me **Quick Chest ON/OFF** toggle
-            - Config auto-save hoti hai
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          if-no-files-found: error

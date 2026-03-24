@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "quickstore",
-  "version": "${version}",
+  "version": "1.0.0",
   "name": "QuickStoreMod",
   "description": "Right-click chest: Store AND Drop item from hand - both together!",
   "authors": ["YourName"],

@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameMenuScreen.class)
-public abstract class GameMenuScreenMixin extends Screen {
+public class GameMenuScreenMixin extends Screen {
     
     private ButtonWidget quickChestButton;
     
@@ -35,9 +35,7 @@ public abstract class GameMenuScreenMixin extends Screen {
             }
         );
         
-        // Set initial text
         QuickToggleButton.updateButtonText(quickChestButton, QuickChestMod.isEnabled());
-        
         this.addDrawableChild(quickChestButton);
     }
 }

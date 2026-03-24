@@ -1,12 +1,12 @@
 pluginManagement {
     repositories {
         maven {
-            name = "Fabric"
-            url = "https://maven.fabricmc.net/"
+            name = 'FabricMC'
+            url = 'https://maven.fabricmc.net/'
         }
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
-rootProject.name = "quickchest"
+rootProject.name = "QuickChestMod"

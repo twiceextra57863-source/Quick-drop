@@ -1,40 +1,39 @@
-name: Build QuickChest Mod
+name: Build Fabric Mod
 
 on:
   push:
-    branches: [ main, master, dev ]
-  workflow_dispatch:
+    branches: [ "**" ]
+  pull_request:
 
 jobs:
   build:
-    runs-on: macos-latest
-    
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Java 21
+      # Step 1: Repo checkout
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Java 21
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-      
+          cache: gradle
+
+      # Step 3: Grant permission to gradlew
       - name: Make gradlew executable
         run: chmod +x gradlew
-      
-      - name: Clean Gradle Properties
-        run: |
-          # Remove any problematic JVM args
-          if [ -f gradle.properties ]; then
-            sed -i '' '/-Xdock/d' gradle.properties || true
-          fi
-          cat gradle.properties || echo "No gradle.properties"
-      
-      - name: Build
-        run: |
-          ./gradlew clean build --no-daemon --stacktrace
-      
-      - name: Upload JAR
+
+      # Step 4: Build with Gradle
+      - name: Build mod
+        run: ./gradlew build
+
+      # Step 5: Upload build artifact (JAR)
+      - name: Upload build output
         uses: actions/upload-artifact@v4
         with:
-          name: quickchest-${{ github.run_number }}
+          name: t-cinematic-mod
           path: build/libs/*.jar
+          

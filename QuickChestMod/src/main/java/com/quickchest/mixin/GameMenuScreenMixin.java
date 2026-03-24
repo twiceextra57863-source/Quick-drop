@@ -1,1 +1,0 @@
-package com.quickchest.mixin; public class GameMenuScreenMixin {}

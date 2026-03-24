@@ -1,5 +1,6 @@
 plugins {
     id 'fabric-loom' version '1.7.4'
+    id 'maven-publish'
 }
 
 version = "1.0.0"
@@ -23,4 +24,27 @@ dependencies {
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", "1.21.11"
+    inputs.property "loader_version", "0.16.9"
+    filteringCharset "UTF-8"
+    
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version,
+                "minecraft_version": "1.21.11",
+                "loader_version": "0.16.9"
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}"}
+    }
 }

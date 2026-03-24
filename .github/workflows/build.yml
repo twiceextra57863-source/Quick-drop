@@ -3,8 +3,6 @@ name: Build QuickChest Mod
 on:
   push:
     branches: [ main, master, dev ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -12,50 +10,40 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        
-      - name: Set up JDK 21
+      - uses: actions/checkout@v4
+      
+      - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          
-      - name: Make gradlew executable
+      
+      - name: Setup Gradle
         run: chmod +x gradlew
-        
-      # Kill any existing gradle daemon
-      - name: Kill Gradle Daemon
-        run: ./gradlew --stop || true
-        
-      # Complete cleanup
-      - name: Complete Cleanup
+      
+      # Use different cache key to avoid old cache
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-v3-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-v3-
+      
+      # Clear only loom cache specifically
+      - name: Clear Loom Cache
         run: |
-          echo "Removing all gradle caches..."
-          rm -rf ~/.gradle/caches/
-          rm -rf ~/.gradle/wrapper/
-          rm -rf .gradle/
-          rm -rf build/
-          rm -rf ~/.gradle/loom-cache/
-          echo "✅ All caches removed"
-          
+          rm -rf ~/.gradle/caches/fabric-loom
+          rm -rf .gradle/loom-cache
+          ./gradlew --stop || true
+      
       - name: Build with Gradle
-        run: |
-          ./gradlew clean build --no-daemon --stacktrace --refresh-dependencies
-          
-      - name: List built files
-        run: |
-          if [ -d "build/libs" ]; then
-            echo "✅ Build successful! JAR files:"
-            ls -la build/libs/
-          else
-            echo "❌ Build failed - no build/libs directory"
-            exit 1
-          fi
-          
+        run: ./gradlew clean build --no-daemon --stacktrace --refresh-dependencies
+      
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: quickchest-${{ github.run_number }}
+          name: quickchest-mod
           path: build/libs/*.jar
-          if-no-files-found: error

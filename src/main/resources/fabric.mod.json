@@ -3,7 +3,7 @@
   "id": "quickstore",
   "version": "1.0.0",
   "name": "QuickStoreMod",
-  "description": "Right-click chest: Store AND Drop item from hand - both together!",
+  "description": "Right-click chest: Store AND Drop item from hand!",
   "authors": ["YourName"],
   "license": "MIT",
   "environment": "client",
@@ -13,8 +13,8 @@
     ]
   },
   "depends": {
-    "fabricloader": ">=0.16.9",
-    "minecraft": "~1.21.11",
+    "fabricloader": ">=0.16.10",
+    "minecraft": ">=1.21.11",
     "java": ">=21",
     "fabric-api": ">=0.139.5"
   }

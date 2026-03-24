@@ -12,30 +12,38 @@ base {
 
 repositories {
     mavenCentral()
+    maven {
+        name = "Fabric"
+        url = "https://maven.fabricmc.net/"
+    }
 }
 
 dependencies {
+    // Minecraft 1.21.11
     minecraft "com.mojang:minecraft:1.21.11"
     mappings loom.officialMojangMappings()
+    
+    // Fabric Loader - 1.21.11 compatible
     modImplementation "net.fabricmc:fabric-loader:0.16.9"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:0.105.0+1.21.11"
+    
+    // Fabric API - Use the latest that works with 1.21.11
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.106.0+1.21.11"
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 processResources {
     inputs.property "version", project.version
-    inputs.property "minecraft_version", "1.21.11"
-    inputs.property "loader_version", "0.16.9"
     filteringCharset "UTF-8"
     
     filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": "1.21.11",
-                "loader_version": "0.16.9"
+        expand "version": project.version
     }
 }
 

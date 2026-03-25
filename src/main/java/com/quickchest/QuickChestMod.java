@@ -191,16 +191,16 @@ public class QuickChestMod implements ClientModInitializer {
         return QuickChestConfig.isEnabled();
     }
 
-    public static void toggle() {
-        QuickChestConfig.setEnabled(!QuickChestConfig.isEnabled());
+    public static void toggleAutoMode() {
+        QuickChestConfig.setAutoMode(!QuickChestConfig.isAutoMode());
         QuickChestConfig.save();
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player != null) {
             client.player.sendMessage(Text.literal(
-                QuickChestConfig.isEnabled()
-                    ? "§a[QuickChest] ON"
-                    : "§c[QuickChest] OFF"
+                QuickChestConfig.isAutoMode()
+                    ? "§b[QuickChest] §fAuto Mode §aON §7(beginner friendly)"
+                    : "§b[QuickChest] §fAuto Mode §cOFF §7(manual)"
             ), true);
         }
     }
-}
+}  // class closing brace

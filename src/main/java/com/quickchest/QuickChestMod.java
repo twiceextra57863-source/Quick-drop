@@ -5,6 +5,8 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.ChestBlockEntity;
+import net.minecraft.block.entity.HopperBlockEntity;
+import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -38,13 +40,18 @@ public class QuickChestMod implements ClientModInitializer {
     private static long autoNextActionTick = 0L;
     private static int autoCycleCount = 0;
 
-    enum AutoPhase {
+    public enum AutoPhase {
         IDLE, STORE, PICK, DROP, PICKUP, DONE
+    }
+
+    // Container type
+    public enum ContainerType {
+        CHEST, HOPPER
     }
 
     @Override
     public void onInitializeClient() {
-        LOGGER.info("[QuickChest] Loaded!");
+        LOGGER.info("[QuickChest] Loaded! Chest + Hopper support.");
         QuickChestConfig.load();
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -56,13 +63,20 @@ public class QuickChestMod implements ClientModInitializer {
     }
 
     // =============================================
-    // MANUAL MODE
+    // UNIFIED CONTAINER HANDLER
     // =============================================
-    public static boolean handleChestClick(BlockPos chestPos) {
+
+    // Chest click — backward compat
+    public static boolean handleChestClick(BlockPos pos) {
+        return handleContainerClick(pos, ContainerType.CHEST);
+    }
+
+    // Universal handler — chest + hopper dono
+    public static boolean handleContainerClick(BlockPos pos, ContainerType type) {
         if (!QuickChestConfig.isEnabled()) return false;
 
         if (QuickChestConfig.isAutoMode()) {
-            return startAutoMode(chestPos);
+            return startAutoMode(pos, type);
         }
 
         long now = System.currentTimeMillis();
@@ -77,32 +91,46 @@ public class QuickChestMod implements ClientModInitializer {
         ItemStack held = player.getMainHandStack();
         if (held.isEmpty()) return false;
 
-        BlockEntity be = world.getBlockEntity(chestPos);
-        if (!(be instanceof ChestBlockEntity chest)) return false;
+        // Container type ke hisaab se block entity lo
+        BlockEntity be = world.getBlockEntity(pos);
+        LootableContainerBlockEntity container = getContainer(be, type);
 
-        int emptySlot = findEmptyChestSlot(chest);
+        if (container == null) {
+            LOGGER.warn("[QuickChest] No {} at {}", type, pos);
+            return false;
+        }
+
+        int emptySlot = findEmptySlot(container);
         if (emptySlot == -1) {
-            player.sendMessage(Text.literal("§c[QuickChest] Chest full!"), true);
+            player.sendMessage(
+                Text.literal("§c[QuickChest] " + type + " full!"), true);
             return false;
         }
 
         lastActionTime = now;
         ItemStack stored = held.copy();
 
-        chest.setStack(emptySlot, stored.copy());
+        // Store
+        container.setStack(emptySlot, stored.copy());
         player.getInventory().main.set(
             player.getInventory().selectedSlot, ItemStack.EMPTY
         );
 
-        playSound(client, SoundEvents.ENTITY_ITEM_PICKUP, 0.6f, 1.2f);
+        // Sound — hopper ka alag sound
+        if (type == ContainerType.HOPPER) {
+            playSound(client, SoundEvents.BLOCK_HOPPER_AMBIENT, 0.8f, 1.2f);
+        } else {
+            playSound(client, SoundEvents.ENTITY_ITEM_PICKUP, 0.6f, 1.2f);
+        }
 
         pendingReturn = true;
         itemToReturn = stored.copy();
         returnAtTick = tickCount + QuickChestConfig.getReturnDelayTicks();
 
         player.sendMessage(
-            Text.literal("§a[QuickChest] §fStored! Returning in "
-                + QuickChestConfig.getReturnDelayTicks() + " ticks..."),
+            Text.literal("§a[QuickChest] §f"
+                + stored.getItem().getName().getString()
+                + " §astored in §e" + type.name().toLowerCase() + "§a!"),
             true
         );
 
@@ -120,27 +148,27 @@ public class QuickChestMod implements ClientModInitializer {
     // =============================================
     // AUTO MODE
     // =============================================
-    private static boolean startAutoMode(BlockPos chestPos) {
+    private static boolean startAutoMode(BlockPos pos, ContainerType type) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return false;
 
         ItemStack held = client.player.getMainHandStack();
         if (held.isEmpty()) return false;
 
-        BlockEntity be = client.world.getBlockEntity(chestPos);
-        if (!(be instanceof ChestBlockEntity)) return false;
+        BlockEntity be = client.world.getBlockEntity(pos);
+        if (getContainer(be, type) == null) return false;
 
         autoModeActive = true;
-        autoChestPos = chestPos;
+        autoChestPos = pos;
         autoItem = held.copy();
         autoPhase = AutoPhase.STORE;
         autoNextActionTick = tickCount + 1L;
         autoCycleCount = 0;
 
         client.player.sendMessage(
-            Text.literal("§b[QuickChest] §fAuto started! §e"
-                + QuickChestConfig.getAutoCycles() + " cycles @ "
-                + getSpeedLabel(QuickChestConfig.getAutoSpeedTicks())),
+            Text.literal("§b[QuickChest] §fAuto started on §e"
+                + type.name().toLowerCase() + "§f! §e"
+                + QuickChestConfig.getAutoCycles() + " cycles"),
             true
         );
 
@@ -156,39 +184,48 @@ public class QuickChestMod implements ClientModInitializer {
         World world = client.world;
         long speed = QuickChestConfig.getAutoSpeedTicks();
 
+        // Container type detect karo
+        BlockEntity be = world.getBlockEntity(autoChestPos);
+        ContainerType type = ContainerType.CHEST;
+        if (be instanceof HopperBlockEntity) type = ContainerType.HOPPER;
+
         switch (autoPhase) {
 
             case STORE -> {
-                BlockEntity be = world.getBlockEntity(autoChestPos);
-                if (!(be instanceof ChestBlockEntity chest)) {
-                    stopAutoMode(client, "Chest not found!");
+                LootableContainerBlockEntity container =
+                    getContainer(world.getBlockEntity(autoChestPos), type);
+                if (container == null) {
+                    stopAutoMode(client, "Container not found!");
                     return;
                 }
-                int slot = findEmptyChestSlot(chest);
+                int slot = findEmptySlot(container);
                 if (slot == -1) {
-                    stopAutoMode(client, "Chest full!");
+                    stopAutoMode(client, "Container full!");
                     return;
                 }
-                chest.setStack(slot, autoItem.copy());
+                container.setStack(slot, autoItem.copy());
                 player.getInventory().main.set(
                     player.getInventory().selectedSlot, ItemStack.EMPTY
                 );
-                playSound(client, SoundEvents.ENTITY_ITEM_PICKUP, 0.7f, 1.3f);
+                playSound(client, type == ContainerType.HOPPER
+                    ? SoundEvents.BLOCK_HOPPER_AMBIENT
+                    : SoundEvents.ENTITY_ITEM_PICKUP, 0.7f, 1.3f);
                 autoPhase = AutoPhase.PICK;
                 autoNextActionTick = tickCount + speed;
             }
 
             case PICK -> {
-                BlockEntity be = world.getBlockEntity(autoChestPos);
-                if (!(be instanceof ChestBlockEntity chest)) {
-                    stopAutoMode(client, "Chest not found!");
+                LootableContainerBlockEntity container =
+                    getContainer(world.getBlockEntity(autoChestPos), type);
+                if (container == null) {
+                    stopAutoMode(client, "Container not found!");
                     return;
                 }
-                for (int i = 0; i < chest.size(); i++) {
-                    ItemStack stack = chest.getStack(i);
+                for (int i = 0; i < container.size(); i++) {
+                    ItemStack stack = container.getStack(i);
                     if (!stack.isEmpty() &&
                         stack.getItem().equals(autoItem.getItem())) {
-                        chest.removeStack(i);
+                        container.removeStack(i);
                         returnItemToInventory(client, autoItem.copy());
                         playSound(client,
                             SoundEvents.ENTITY_ITEM_PICKUP, 0.5f, 0.9f);
@@ -200,14 +237,13 @@ public class QuickChestMod implements ClientModInitializer {
             }
 
             case DROP -> {
-    ItemStack currentHeld = player.getMainHandStack();
-    if (!currentHeld.isEmpty()) {
-        player.dropSelectedItem(false);
-        playSound(client,
-            SoundEvents.ENTITY_SNOWBALL_THROW, 0.4f, 1.0f); // ✅ fixed
-    }
-    autoPhase = AutoPhase.PICKUP;
-    autoNextActionTick = tickCount + speed;
+                if (!player.getMainHandStack().isEmpty()) {
+                    player.dropSelectedItem(false);
+                    playSound(client,
+                        SoundEvents.ENTITY_SNOWBALL_THROW, 0.4f, 1.0f);
+                }
+                autoPhase = AutoPhase.PICKUP;
+                autoNextActionTick = tickCount + speed;
             }
 
             case PICKUP -> {
@@ -244,16 +280,13 @@ public class QuickChestMod implements ClientModInitializer {
         autoCycleCount = 0;
 
         if (client.player == null) return;
-
         if (reason != null) {
             client.player.sendMessage(
                 Text.literal("§c[QuickChest] §fStopped: " + reason), true);
         } else {
             client.player.sendMessage(
                 Text.literal("§a[QuickChest] §fAuto complete! §e"
-                    + QuickChestConfig.getAutoCycles() + " cycles ✔"),
-                true
-            );
+                    + QuickChestConfig.getAutoCycles() + " cycles ✔"), true);
             playSound(client, SoundEvents.ENTITY_PLAYER_LEVELUP, 0.5f, 1.0f);
         }
     }
@@ -261,9 +294,19 @@ public class QuickChestMod implements ClientModInitializer {
     // =============================================
     // HELPERS
     // =============================================
-    private static int findEmptyChestSlot(ChestBlockEntity chest) {
-        for (int i = 0; i < chest.size(); i++) {
-            if (chest.getStack(i).isEmpty()) return i;
+
+    // Container type ke hisaab se block entity return karo
+    private static LootableContainerBlockEntity getContainer(
+            BlockEntity be, ContainerType type) {
+        return switch (type) {
+            case CHEST  -> be instanceof ChestBlockEntity c ? c : null;
+            case HOPPER -> be instanceof HopperBlockEntity h ? h : null;
+        };
+    }
+
+    private static int findEmptySlot(LootableContainerBlockEntity container) {
+        for (int i = 0; i < container.size(); i++) {
+            if (container.getStack(i).isEmpty()) return i;
         }
         return -1;
     }
@@ -317,16 +360,8 @@ public class QuickChestMod implements ClientModInitializer {
         };
     }
 
-    // =============================================
-    // PUBLIC TOGGLE METHODS
-    // =============================================
-    public static boolean isEnabled() {
-        return QuickChestConfig.isEnabled();
-    }
-
-    public static boolean isAutoMode() {
-        return QuickChestConfig.isAutoMode();
-    }
+    public static boolean isEnabled() { return QuickChestConfig.isEnabled(); }
+    public static boolean isAutoMode() { return QuickChestConfig.isAutoMode(); }
 
     public static void toggle() {
         QuickChestConfig.setEnabled(!QuickChestConfig.isEnabled());
@@ -353,4 +388,4 @@ public class QuickChestMod implements ClientModInitializer {
             ), true);
         }
     }
-}
+                }

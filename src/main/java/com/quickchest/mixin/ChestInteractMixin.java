@@ -2,6 +2,7 @@ package com.quickchest.mixin;
 
 import com.quickchest.QuickChestMod;
 import net.minecraft.block.ChestBlock;
+import net.minecraft.block.HopperBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,17 +18,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ChestBlock.class)
 public class ChestInteractMixin {
 
-    @Inject(
-        method = "onUse",
-        at = @At("HEAD"),
-        cancellable = true
-    )
+    @Inject(method = "onUse", at = @At("HEAD"), cancellable = true)
     private void onChestUse(
-        BlockState state,
-        World world,
-        BlockPos pos,
-        PlayerEntity player,
-        BlockHitResult hit,
+        BlockState state, World world, BlockPos pos,
+        PlayerEntity player, BlockHitResult hit,
         CallbackInfoReturnable<ActionResult> cir
     ) {
         if (!world.isClient()) return;
@@ -38,8 +32,7 @@ public class ChestInteractMixin {
         if (!player.getUuid().equals(client.player.getUuid())) return;
         if (client.player.getMainHandStack().isEmpty()) return;
 
-        boolean handled = QuickChestMod.handleChestClick(pos);
-        if (handled) {
+        if (QuickChestMod.handleChestClick(pos)) {
             cir.setReturnValue(ActionResult.SUCCESS);
             cir.cancel();
         }

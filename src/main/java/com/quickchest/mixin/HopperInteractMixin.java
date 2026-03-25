@@ -1,6 +1,7 @@
 package com.quickchest.mixin;
 
 import com.quickchest.QuickChestMod;
+import com.quickchest.QuickChestMod.ContainerType;
 import net.minecraft.block.HopperBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;

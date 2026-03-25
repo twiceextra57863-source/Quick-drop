@@ -200,14 +200,14 @@ public class QuickChestMod implements ClientModInitializer {
             }
 
             case DROP -> {
-                ItemStack currentHeld = player.getMainHandStack();
-                if (!currentHeld.isEmpty()) {
-                    player.dropSelectedItem(false);
-                    playSound(client,
-                        SoundEvents.ENTITY_ITEM_THROW, 0.4f, 1.0f);
-                }
-                autoPhase = AutoPhase.PICKUP;
-                autoNextActionTick = tickCount + speed;
+    ItemStack currentHeld = player.getMainHandStack();
+    if (!currentHeld.isEmpty()) {
+        player.dropSelectedItem(false);
+        playSound(client,
+            SoundEvents.ENTITY_SNOWBALL_THROW, 0.4f, 1.0f); // ✅ fixed
+    }
+    autoPhase = AutoPhase.PICKUP;
+    autoNextActionTick = tickCount + speed;
             }
 
             case PICKUP -> {

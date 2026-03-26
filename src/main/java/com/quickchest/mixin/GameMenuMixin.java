@@ -16,10 +16,16 @@ public abstract class GameMenuMixin extends Screen {
 
     @Inject(method = "initWidgets", at = @At("HEAD"))
     private void injectElitePanel(CallbackInfo ci) {
-        // High Command Toggle Button
-        this.addDrawableChild(ButtonWidget.builder(DupeSettings.getStatusText(), button -> {
+        // Mode Selector Button
+        this.addDrawableChild(ButtonWidget.builder(Text.of("Mode: " + DupeSettings.getStatusText().getString().split(" ")[0]), button -> {
             DupeSettings.dupeMode = (DupeSettings.dupeMode + 1) % 3;
-            button.setMessage(DupeSettings.getStatusText());
-        }).dimensions(this.width / 2 - 102, 10, 204, 20).build());
+            button.setMessage(Text.of("Mode: " + DupeSettings.getStatusText().getString().split(" ")[0]));
+        }).dimensions(this.width / 2 - 102, 10, 100, 20).build());
+
+        // Auto-Exit Toggle Button
+        this.addDrawableChild(ButtonWidget.builder(Text.of("Auto-Exit: " + (DupeSettings.autoExit ? "§aON" : "§cOFF")), button -> {
+            DupeSettings.autoExit = !DupeSettings.autoExit;
+            button.setMessage(Text.of("Auto-Exit: " + (DupeSettings.autoExit ? "§aON" : "§cOFF")));
+        }).dimensions(this.width / 2 + 2, 10, 100, 20).build());
     }
 }

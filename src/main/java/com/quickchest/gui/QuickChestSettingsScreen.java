@@ -7,27 +7,35 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 
 public class QuickChestSettingsScreen extends Screen {
 
     private final Screen parent;
 
-    // Slider values
-    private int cycles;     // 1–20
-    private int speedTicks; // 1–10 ticks per phase
+    private int cycles;
+    private int speedTicks;
+    private int maxClicks;
+    private int actionsPerClick;
+
+    // Text field for manual input
+    private TextFieldWidget actionsInput;
+    private TextFieldWidget maxClicksInput;
 
     public QuickChestSettingsScreen(Screen parent) {
         super(Text.literal("§6QuickChest Settings"));
         this.parent = parent;
-        this.cycles = QuickChestConfig.getAutoCycles();
-        this.speedTicks = QuickChestConfig.getAutoSpeedTicks();
+        this.cycles       = QuickChestConfig.getAutoCycles();
+        this.speedTicks   = QuickChestConfig.getAutoSpeedTicks();
+        this.maxClicks    = QuickChestConfig.getMaxClicksPerSession();
+        this.actionsPerClick = QuickChestConfig.getActionsPerClick();
     }
 
     @Override
     protected void init() {
-        int centerX = this.width / 2;
-        int startY = this.height / 2 - 80;
+        int cx = this.width / 2;
+        int y  = this.height / 2 - 130;
 
         // ── Quick Chest ON/OFF ──
         this.addDrawableChild(ButtonWidget.builder(
@@ -39,198 +47,328 @@ public class QuickChestSettingsScreen extends Screen {
                 btn.setMessage(Text.literal(
                     QuickChestConfig.isEnabled()
                         ? "§aQuick Chest: ON"
-                        : "§cQuick Chest: OFF"
-                ));
+                        : "§cQuick Chest: OFF"));
             }
-        ).dimensions(centerX - 100, startY, 200, 20)
-         .tooltip(Tooltip.of(Text.literal("Quick Chest mod enable/disable")))
+        ).dimensions(cx - 100, y, 200, 20)
+         .tooltip(Tooltip.of(Text.literal("Quick Chest ON/OFF")))
          .build());
 
-        // ── Auto Mode ON/OFF ──
+        // ── Auto Mode ──
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal(QuickChestConfig.isAutoMode()
-                ? "§bAuto Mode: ON"
-                : "§7Auto Mode: OFF"),
+                ? "§bAuto Mode: ON §7(Beginner)"
+                : "§7Auto Mode: OFF §8(Manual)"),
             btn -> {
                 QuickChestMod.toggleAutoMode();
                 btn.setMessage(Text.literal(
                     QuickChestConfig.isAutoMode()
-                        ? "§bAuto Mode: ON"
-                        : "§7Auto Mode: OFF"
-                ));
+                        ? "§bAuto Mode: ON §7(Beginner)"
+                        : "§7Auto Mode: OFF §8(Manual)"));
             }
-        ).dimensions(centerX - 100, startY + 25, 200, 20)
-         .tooltip(Tooltip.of(Text.literal(
-             "Auto: beginner ke liye automatic drop+store cycles")))
+        ).dimensions(cx - 100, y + 25, 200, 20)
+         .tooltip(Tooltip.of(Text.literal("Beginner ke liye auto mode")))
          .build());
 
-        // ── Cycles Slider ──
+        // ═══════════════════════════════
+        // AUTO MODE SECTION
+        // ═══════════════════════════════
+
+        // Cycles Slider
         this.addDrawableChild(new SliderWidget(
-            centerX - 100, startY + 55, 200, 20,
+            cx - 100, y + 60, 200, 20,
             Text.literal("§eCycles: §f" + cycles),
             (cycles - 1) / 19.0
         ) {
-            @Override
-            protected void updateMessage() {
-                int val = 1 + (int) Math.round(this.value * 19);
-                QuickChestSettingsScreen.this.cycles = val;
-                this.setMessage(Text.literal("§eCycles: §f" + val));
+            @Override protected void updateMessage() {
+                int v = 1 + (int) Math.round(this.value * 19);
+                QuickChestSettingsScreen.this.cycles = v;
+                this.setMessage(Text.literal("§eCycles: §f" + v));
             }
-
-            @Override
-            protected void applyValue() {
-                int val = 1 + (int) Math.round(this.value * 19);
-                QuickChestSettingsScreen.this.cycles = val;
-                QuickChestConfig.setAutoCycles(val);
+            @Override protected void applyValue() {
+                int v = 1 + (int) Math.round(this.value * 19);
+                QuickChestConfig.setAutoCycles(v);
                 QuickChestConfig.save();
             }
         });
 
-        // ── Speed Slider ──
+        // Speed Slider
         this.addDrawableChild(new SliderWidget(
-            centerX - 100, startY + 85, 200, 20,
-            Text.literal("§dSpeed: §f" + getSpeedLabel(speedTicks)),
-            1.0 - (speedTicks - 1) / 9.0  // reverse — right = faster
+            cx - 100, y + 85, 200, 20,
+            Text.literal("§dSpeed: §f" + getSpeedLabel(speedTicks)
+                + " §8(" + speedTicks + "t)"),
+            1.0 - (speedTicks - 1) / 9.0
         ) {
-            @Override
-            protected void updateMessage() {
-                // Reverse: slider right = fast (1 tick), left = slow (10 ticks)
-                int val = 10 - (int) Math.round(this.value * 9);
-                QuickChestSettingsScreen.this.speedTicks = val;
+            @Override protected void updateMessage() {
+                int v = 10 - (int) Math.round(this.value * 9);
+                QuickChestSettingsScreen.this.speedTicks = v;
                 this.setMessage(Text.literal(
-                    "§dSpeed: §f" + getSpeedLabel(val)));
+                    "§dSpeed: §f" + getSpeedLabel(v) + " §8(" + v + "t)"));
             }
-
-            @Override
-            protected void applyValue() {
-                int val = 10 - (int) Math.round(this.value * 9);
-                QuickChestSettingsScreen.this.speedTicks = val;
-                QuickChestConfig.setAutoSpeedTicks(val);
+            @Override protected void applyValue() {
+                int v = 10 - (int) Math.round(this.value * 9);
+                QuickChestConfig.setAutoSpeedTicks(v);
                 QuickChestConfig.save();
             }
         });
 
-        // ── Return Delay Slider (manual mode) ──
+        // ═══════════════════════════════
+        // MANUAL MODE SECTION
+        // ═══════════════════════════════
+
+        // Return Delay Slider
         this.addDrawableChild(new SliderWidget(
-            centerX - 100, startY + 115, 200, 20,
+            cx - 100, y + 125, 200, 20,
             Text.literal("§aReturn Delay: §f"
                 + QuickChestConfig.getReturnDelayTicks() + " ticks"),
             (QuickChestConfig.getReturnDelayTicks() - 1) / 19.0
         ) {
-            @Override
-            protected void updateMessage() {
-                int val = 1 + (int) Math.round(this.value * 19);
+            @Override protected void updateMessage() {
+                int v = 1 + (int) Math.round(this.value * 19);
                 this.setMessage(Text.literal(
-                    "§aReturn Delay: §f" + val + " ticks"));
+                    "§aReturn Delay: §f" + v + " ticks"));
             }
-
-            @Override
-            protected void applyValue() {
-                int val = 1 + (int) Math.round(this.value * 19);
-                QuickChestConfig.setReturnDelayTicks(val);
+            @Override protected void applyValue() {
+                int v = 1 + (int) Math.round(this.value * 19);
+                QuickChestConfig.setReturnDelayTicks(v);
                 QuickChestConfig.save();
             }
         });
 
-        // ── Reset to Default ──
+        // ═══════════════════════════════
+        // CLICK PRACTICE SECTION
+        // ═══════════════════════════════
+
+        // Max Clicks Per Session — TextField (apne man se type karo)
+        maxClicksInput = new TextFieldWidget(
+            this.textRenderer,
+            cx - 100, y + 165, 95, 20,
+            Text.literal("Max Clicks")
+        );
+        maxClicksInput.setMaxLength(3);
+        maxClicksInput.setText(String.valueOf(maxClicks));
+        maxClicksInput.setPlaceholder(Text.literal("§81-999"));
+        maxClicksInput.setChangedListener(text -> {
+            try {
+                int v = Integer.parseInt(text);
+                if (v >= 1 && v <= 999) {
+                    QuickChestSettingsScreen.this.maxClicks = v;
+                    QuickChestConfig.setMaxClicksPerSession(v);
+                    QuickChestConfig.save();
+                }
+            } catch (NumberFormatException ignored) {}
+        });
+        this.addDrawableChild(maxClicksInput);
+
+        // Actions Per Click — TextField (kitni baar action ho ek click me)
+        actionsInput = new TextFieldWidget(
+            this.textRenderer,
+            cx + 5, y + 165, 95, 20,
+            Text.literal("Actions/Click")
+        );
+        actionsInput.setMaxLength(3);
+        actionsInput.setText(String.valueOf(actionsPerClick));
+        actionsInput.setPlaceholder(Text.literal("§81-50"));
+        actionsInput.setChangedListener(text -> {
+            try {
+                int v = Integer.parseInt(text);
+                if (v >= 1 && v <= 50) {
+                    QuickChestSettingsScreen.this.actionsPerClick = v;
+                    QuickChestConfig.setActionsPerClick(v);
+                    QuickChestConfig.save();
+                }
+            } catch (NumberFormatException ignored) {}
+        });
+        this.addDrawableChild(actionsInput);
+
+        // Quick preset buttons — Beginner/Normal/Expert
         this.addDrawableChild(ButtonWidget.builder(
-            Text.literal("§cReset to Default"),
+            Text.literal("§a🐣 Beginner"),
+            btn -> applyPreset(1, 1, 3, 5)
+        ).dimensions(cx - 100, y + 190, 60, 18)
+         .tooltip(Tooltip.of(Text.literal(
+             "1 click = 1 action\nMax 3 clicks\nSpeed: Slow")))
+         .build());
+
+        this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("§e👍 Normal"),
+            btn -> applyPreset(5, 3, 5, 10)
+        ).dimensions(cx - 38, y + 190, 60, 18)
+         .tooltip(Tooltip.of(Text.literal(
+             "1 click = 5 actions\nMax 5 clicks\nSpeed: Medium")))
+         .build());
+
+        this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("§c🔥 Expert"),
+            btn -> applyPreset(20, 10, 2, 20)
+        ).dimensions(cx + 24, y + 190, 60, 18)
+         .tooltip(Tooltip.of(Text.literal(
+             "1 click = 20 actions\nMax 10 clicks\nSpeed: Fast")))
+         .build());
+
+        this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("§5👑 Legend"),
+            btn -> applyPreset(50, 20, 1, 30)
+        ).dimensions(cx + 86, y + 190, 60, 18)
+         .tooltip(Tooltip.of(Text.literal(
+             "1 click = 50 actions\nMax 20 clicks\nSpeed: MAX")))
+         .build());
+
+        // ── Reset + Done ──
+        this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("§cReset"),
             btn -> {
                 QuickChestConfig.resetToDefault();
                 QuickChestConfig.save();
-                // Reload screen
                 assert this.client != null;
-                this.client.setScreen(
-                    new QuickChestSettingsScreen(this.parent));
+                this.client.setScreen(new QuickChestSettingsScreen(parent));
             }
-        ).dimensions(centerX - 100, startY + 145, 95, 20)
-         .tooltip(Tooltip.of(Text.literal("Sab settings default pe reset karo")))
-         .build());
+        ).dimensions(cx - 100, y + 215, 95, 20).build());
 
-        // ── Done ──
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("§aDone"),
             btn -> {
                 assert this.client != null;
-                this.client.setScreen(this.parent);
+                this.client.setScreen(parent);
             }
-        ).dimensions(centerX + 5, startY + 145, 95, 20)
-         .build());
+        ).dimensions(cx + 5, y + 215, 95, 20).build());
+    }
+
+    // Preset apply karo
+    private void applyPreset(int actPerClick, int maxCl,
+                              int speedT, int cyc) {
+        this.actionsPerClick = actPerClick;
+        this.maxClicks = maxCl;
+        this.speedTicks = speedT;
+        this.cycles = cyc;
+
+        QuickChestConfig.setActionsPerClick(actPerClick);
+        QuickChestConfig.setMaxClicksPerSession(maxCl);
+        QuickChestConfig.setAutoSpeedTicks(speedT);
+        QuickChestConfig.setAutoCycles(cyc);
+        QuickChestConfig.save();
+
+        // Refresh screen
+        assert this.client != null;
+        this.client.setScreen(new QuickChestSettingsScreen(parent));
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // Background
+    public void render(DrawContext context, int mouseX,
+                       int mouseY, float delta) {
         this.renderBackground(context, mouseX, mouseY, delta);
 
+        int cx = this.width / 2;
+        int y  = this.height / 2 - 130;
+
         // Title
-        context.drawCenteredTextWithShadow(
-            this.textRenderer,
+        context.drawCenteredTextWithShadow(this.textRenderer,
             Text.literal("§6§lQuickChest Settings"),
-            this.width / 2,
-            this.height / 2 - 100,
-            0xFFFFFF
-        );
+            cx, y - 14, 0xFFFFFF);
 
-        int centerX = this.width / 2;
-        int startY = this.height / 2 - 80;
-
-        // Labels
+        // Section headers
         context.drawTextWithShadow(this.textRenderer,
-            Text.literal("§7— Manual Mode —"),
-            centerX - 100, startY + 108, 0xAAAAAA);
+            Text.literal("§e§l── Auto Mode ──"),
+            cx - 100, y + 52, 0xFFAA00);
 
         context.drawTextWithShadow(this.textRenderer,
-            Text.literal("§7— Auto Mode —"),
-            centerX - 100, startY + 48, 0xAAAAAA);
+            Text.literal("§a§l── Manual Mode ──"),
+            cx - 100, y + 117, 0x55FF55);
 
-        // Live preview box
-        renderPreviewBox(context, centerX, startY + 170);
+        context.drawTextWithShadow(this.textRenderer,
+            Text.literal("§6§l── Click Practice ──"),
+            cx - 100, y + 157, 0xFFAA00);
+
+        // Labels for text fields
+        context.drawTextWithShadow(this.textRenderer,
+            Text.literal("§7Max Clicks:"),
+            cx - 100, y + 155, 0xAAAAAA);
+
+        context.drawTextWithShadow(this.textRenderer,
+            Text.literal("§7Actions/Click:"),
+            cx + 5, y + 155, 0xAAAAAA);
+
+        // Tick connection info — education
+        renderTickInfo(context, cx, y);
+
+        // Live preview
+        renderPreviewBox(context, cx, y + 242);
 
         super.render(context, mouseX, mouseY, delta);
     }
 
-    private void renderPreviewBox(DrawContext context, int cx, int y) {
-        // Box background
-        context.fill(cx - 100, y, cx + 100, y + 45, 0x88000000);
-        context.drawBorder(cx - 100, y, 200, 45, 0xFF666666);
+    // Tick se connection explain karo
+    private void renderTickInfo(DrawContext context, int cx, int y) {
+        int bx = cx - 100;
+        int by = y + 108;
 
-        // Preview text
-        context.drawCenteredTextWithShadow(this.textRenderer,
-            Text.literal("§e§lLive Preview"),
-            cx, y + 4, 0xFFFF55);
+        // Tick math box
+        context.fill(bx, by, bx + 200, by + 8, 0x00000000);
 
-        context.drawCenteredTextWithShadow(this.textRenderer,
-            Text.literal("§fCycles: §e" + cycles
-                + "  §fSpeed: §d" + getSpeedLabel(speedTicks)
-                + "  §fReturn: §a" + QuickChestConfig.getReturnDelayTicks() + "t"),
-            cx, y + 18, 0xFFFFFF);
+        // Speed ticks to ms conversion
+        double msPerAction = (speedTicks / 20.0) * 1000;
+        double totalActions = (long) actionsPerClick * maxClicks;
+        double totalTime = (totalActions * speedTicks) / 20.0;
 
-        // Total time estimate
-        double totalSecs = (cycles * 4 * speedTicks) / 20.0;
-        context.drawCenteredTextWithShadow(this.textRenderer,
-            Text.literal("§7Est. auto duration: §f~"
-                + String.format("%.1f", totalSecs) + "s"),
-            cx, y + 30, 0xAAAAAA);
+        context.drawTextWithShadow(this.textRenderer,
+            Text.literal("§8" + speedTicks + "t = §7"
+                + String.format("%.0f", msPerAction) + "ms/action"),
+            cx + 5, y + 108, 0x888888);
     }
 
-    private static String getSpeedLabel(int ticks) {
+    private void renderPreviewBox(DrawContext context, int cx, int y) {
+        context.fill(cx - 100, y, cx + 100, y + 68, 0x99000000);
+        context.drawBorder(cx - 100, y, 200, 68, 0xFFFFAA00);
+
+        context.drawCenteredTextWithShadow(this.textRenderer,
+            Text.literal("§6§l⚡ Live Preview"), cx, y + 4, 0xFFAA00);
+
+        // Row 1: Cycles + Speed
+        context.drawCenteredTextWithShadow(this.textRenderer,
+            Text.literal("§7Cycles: §e" + cycles
+                + "  §7Speed: §d" + getSpeedLabel(speedTicks)
+                + " §8(" + speedTicks + "t)"),
+            cx, y + 16, 0xFFFFFF);
+
+        // Row 2: Click settings
+        context.drawCenteredTextWithShadow(this.textRenderer,
+            Text.literal("§7Max Clicks: §6" + maxClicks
+                + "  §7Per Click: §a" + actionsPerClick + " actions"),
+            cx, y + 28, 0xFFFFFF);
+
+        // Row 3: Tick math — education
+        double msPerTick = (speedTicks / 20.0) * 1000;
+        double totalPerSession = (double) maxClicks * actionsPerClick;
+        context.drawCenteredTextWithShadow(this.textRenderer,
+            Text.literal("§81 tick = 50ms  |  "
+                + speedTicks + "t = §7"
+                + String.format("%.0f", msPerTick) + "ms"),
+            cx, y + 40, 0xAAAAAA);
+
+        // Row 4: Total estimate
+        double estSecs = (totalPerSession * speedTicks) / 20.0;
+        context.drawCenteredTextWithShadow(this.textRenderer,
+            Text.literal("§7Total: §e"
+                + (int) totalPerSession + " actions"
+                + "  §7Est: §f~"
+                + String.format("%.1f", estSecs) + "s"),
+            cx, y + 52, 0xFFFFFF);
+    }
+
+    public static String getSpeedLabel(int ticks) {
         return switch (ticks) {
-            case 1 -> "§cMAX ⚡";
-            case 2 -> "§cVery Fast";
-            case 3 -> "§6Fast";
-            case 4 -> "§6Medium-Fast";
-            case 5 -> "§eMedium";
-            case 6 -> "§eMedium-Slow";
-            case 7 -> "§aSlow";
-            case 8 -> "§aSlow";
-            case 9 -> "§2Very Slow";
-            default -> "§2Slowest";
+            case 1  -> "MAX ⚡";
+            case 2  -> "Very Fast";
+            case 3  -> "Fast";
+            case 4  -> "Med-Fast";
+            case 5  -> "Medium";
+            case 6  -> "Med-Slow";
+            case 7  -> "Slow";
+            case 8  -> "Slow";
+            case 9  -> "Very Slow";
+            default -> "Slowest";
         };
     }
 
     @Override
-    public boolean shouldPause() {
-        return false;
+    public boolean shouldPause() { return false; }
     }
-}

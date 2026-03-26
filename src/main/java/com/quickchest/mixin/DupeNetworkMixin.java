@@ -5,6 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.*;
+import net.minecraft.screen.GenericContainerScreenHandler; // <--- Target Chests Only
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,27 +24,34 @@ public class DupeNetworkMixin {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || DupeSettings.dupeMode == 0) return;
 
-        tickClock++;
-
-        // MODE 1: CTD (Container Transaction Desync)
-        if (DupeSettings.dupeMode == 1 && client.currentScreen != null) {
-            if (tickClock % 8 == 0) {
+        // --- MODE 1: ELITE CTD (CHEST ONLY) ---
+        // Ab ye tabhi chalega jab open screen ek 'GenericContainer' (Chest/Shulker/Barrel) ho
+        if (DupeSettings.dupeMode == 1 && client.player.currentScreenHandler instanceof GenericContainerScreenHandler) {
+            tickClock++;
+            
+            // 7th Tick Snipe (Hopper Sync)
+            if (tickClock >= 7) {
                 int sId = client.player.currentScreenHandler.syncId;
                 int rev = client.player.currentScreenHandler.getRevision();
 
-                for (int i = 0; i < 12; i++) {
+                // High-Speed Packet Burst (Dupe Attempt)
+                for (int i = 0; i < 8; i++) {
                     client.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(sId, rev, 0, 0, SlotActionType.QUICK_MOVE, ItemStack.EMPTY, Int2ObjectMaps.emptyMap()));
                 }
                 
-                // 1.21 Fix: CloseHandledScreenC2SPacket use karein
+                // Sniper Close: Sirf tabhi band hoga jab dupe attempt complete ho
                 client.getNetworkHandler().sendPacket(new CloseHandledScreenC2SPacket(sId));
                 client.execute(() -> client.player.closeHandledScreen());
                 tickClock = 0;
             }
+        } else if (client.currentScreen == null) {
+            tickClock = 0; // Screen band hote hi clock reset
         }
 
-        // MODE 2: EPC (Entity Packet Cramming)
+        // --- MODE 2: EPC (OFF-HAND/DROP) ---
+        // Isse humne touch nahi kiya kyunki ye mast kaam kar raha hai
         if (DupeSettings.dupeMode == 2 && client.currentScreen == null) {
+            tickClock++;
             if (tickClock % 2 == 0) {
                 client.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.DROP_ALL_ITEMS, BlockPos.ORIGIN, net.minecraft.util.math.Direction.DOWN));
                 client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket((client.player.getInventory().selectedSlot + 1) % 9));

@@ -12,21 +12,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameMenuScreen.class)
 public abstract class GameMenuMixin extends Screen {
-    protected GameMenuMixin(Text title) {
-        super(title);
-    }
+    protected GameMenuMixin(Text title) { super(title); }
 
     @Inject(method = "initWidgets", at = @At("HEAD"))
     private void addDupeButton(CallbackInfo ci) {
-        // Button text dynamic rakhenge (ON/OFF dikhane ke liye)
-        Text buttonText = Text.of("Dupe Mod: " + (DupeSettings.isEnabled ? "§aON" : "§cOFF"));
-
-        // Button ko menu mein add karna (X, Y, Width, Height)
-        this.addDrawableChild(ButtonWidget.builder(buttonText, button -> {
-            DupeSettings.isEnabled = !DupeSettings.isEnabled; // Toggle logic
-            button.setMessage(Text.of("Dupe Mod: " + (DupeSettings.isEnabled ? "§aON" : "§cOFF")));
-        }).dimensions(this.width / 2 - 102, 10, 204, 20).build()); 
-        // Ye button bilkul top par aayega
+        // Mode switch karne wala button
+        this.addDrawableChild(ButtonWidget.builder(Text.of("Dupe Mode: " + DupeSettings.getModeName()), button -> {
+            DupeSettings.dupeMode = (DupeSettings.dupeMode + 1) % 3; // 0, 1, 2 loop
+            button.setMessage(Text.of("Dupe Mode: " + DupeSettings.getModeName()));
+        }).dimensions(this.width / 2 - 102, 10, 204, 20).build());
     }
 }
-

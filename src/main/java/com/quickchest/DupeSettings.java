@@ -4,15 +4,14 @@ import net.minecraft.text.Text;
 
 public class DupeSettings {
     public static int dupeMode = 0; 
-    public static boolean autoExit = false; // <--- New Toggle
+    public static boolean autoExit = false;
+    public static boolean isExpanded = false; // Menu open/close state
 
-    public static Text getStatusText() {
-        String mode = switch (dupeMode) {
-            case 1 -> "§6[CTD]";
-            case 2 -> "§b[EPC]";
-            default -> "§7OFF";
+    public static String getModeLabel() {
+        return switch (dupeMode) {
+            case 1 -> "§6[CTD Mode]";
+            case 2 -> "§b[EPC Mode]";
+            default -> "§7[OFF]";
         };
-        String exit = autoExit ? " §a[Auto-Exit: ON]" : " §c[Auto-Exit: OFF]";
-        return Text.of(mode + exit);
     }
 }

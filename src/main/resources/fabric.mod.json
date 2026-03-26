@@ -2,21 +2,20 @@
   "schemaVersion": 1,
   "id": "quickchest",
   "version": "${version}",
-  "name": "QuickChest Mod",
-  "description": "Click chest to instantly drop and store item in 0.3s!",
-  "authors": ["YourName"],
+  "name": "QuickChest Dupe",
+  "description": "Advanced Hopper-Transaction Desync Mod with Escape Menu Toggle",
+  "authors": [
+    "QuickChest-Dev"
+  ],
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-    "client": [
-      "com.quickchest.QuickChestMod"
+    "main": [
+      "com.quickchest.QuickChest"
     ]
   },
   "mixins": [
-    {
-      "config": "quickchest.mixins.json",
-      "environment": "client"
-    }
+    "quickchest.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.16.9",

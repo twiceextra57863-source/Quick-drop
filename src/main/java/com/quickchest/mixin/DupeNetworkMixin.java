@@ -6,6 +6,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,30 +25,27 @@ public class DupeNetworkMixin {
 
         tickClock++;
 
-        // --- MODE 1: CTD (Container Transaction Desync) ---
+        // MODE 1: CTD (Container Transaction Desync)
         if (DupeSettings.dupeMode == 1 && client.currentScreen != null) {
-            if (tickClock % 8 == 0) { // Snipe on Hopper Transfer Tick
+            if (tickClock % 8 == 0) {
                 int sId = client.player.currentScreenHandler.syncId;
                 int rev = client.player.currentScreenHandler.getRevision();
 
-                // Advanced Packet Burst: High-frequency interaction
                 for (int i = 0; i < 12; i++) {
                     client.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(sId, rev, 0, 0, SlotActionType.QUICK_MOVE, ItemStack.EMPTY, Int2ObjectMaps.emptyMap()));
                 }
                 
-                // Force Close to prevent Server-Side Inventory Verification
-                client.getNetworkHandler().sendPacket(new CloseScreenC2SPacket(sId));
+                // 1.21 Fix: CloseHandledScreenC2SPacket use karein
+                client.getNetworkHandler().sendPacket(new CloseHandledScreenC2SPacket(sId));
                 client.execute(() -> client.player.closeHandledScreen());
+                tickClock = 0;
             }
         }
 
-        // --- MODE 2: EPC (Entity Packet Cramming) ---
+        // MODE 2: EPC (Entity Packet Cramming)
         if (DupeSettings.dupeMode == 2 && client.currentScreen == null) {
-            // Logic: Drop item but block the "Inventory Update" from server
-            // Best used while standing in Portals or high lag areas
             if (tickClock % 2 == 0) {
-                client.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.DROP_ALL_ITEMS, client.player.getBlockPos(), net.minecraft.util.math.Direction.DOWN));
-                // Immediately swap to confuse Entity tracker
+                client.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.DROP_ALL_ITEMS, BlockPos.ORIGIN, net.minecraft.util.math.Direction.DOWN));
                 client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket((client.player.getInventory().selectedSlot + 1) % 9));
             }
         }

@@ -15,11 +15,11 @@ public abstract class GameMenuMixin extends Screen {
     protected GameMenuMixin(Text title) { super(title); }
 
     @Inject(method = "initWidgets", at = @At("HEAD"))
-    private void addDupeButton(CallbackInfo ci) {
-        // Mode switch karne wala button
-        this.addDrawableChild(ButtonWidget.builder(Text.of("Dupe Mode: " + DupeSettings.getModeName()), button -> {
-            DupeSettings.dupeMode = (DupeSettings.dupeMode + 1) % 3; // 0, 1, 2 loop
-            button.setMessage(Text.of("Dupe Mode: " + DupeSettings.getModeName()));
+    private void injectElitePanel(CallbackInfo ci) {
+        // High Command Toggle Button
+        this.addDrawableChild(ButtonWidget.builder(DupeSettings.getStatusText(), button -> {
+            DupeSettings.dupeMode = (DupeSettings.dupeMode + 1) % 3;
+            button.setMessage(DupeSettings.getStatusText());
         }).dimensions(this.width / 2 - 102, 10, 204, 20).build());
     }
 }

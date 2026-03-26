@@ -5,6 +5,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.*;
+import net.minecraft.screen.GenericContainerScreenHandler; // <--- Sirf Chest/Storage ke liye
+import net.minecraft.screen.HopperScreenHandler;           // <--- Hopper ke liye
+import net.minecraft.screen.ShulkerBoxScreenHandler;      // <--- Shulker ke liye
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -24,38 +27,41 @@ public class DupeNetworkMixin {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || DupeSettings.dupeMode == 0) return;
 
-        // --- MODE 1: CTD (The Chest Sniper) ---
+        // --- MODE 1: STORAGE SNIPER (CHEST/BARREL/SHULKER ONLY) ---
         if (DupeSettings.dupeMode == 1) {
-            // Agar koi bhi screen khuli hai (Chest, Barrel, etc.)
-            if (client.currentScreen != null && client.player.currentScreenHandler != null) {
+            var handler = client.player.currentScreenHandler;
+            
+            // ELITE CHECK: Sirf tab chalega jab Storage GUI khula ho (Escape Menu ignore hoga)
+            if (handler instanceof GenericContainerScreenHandler || 
+                handler instanceof ShulkerBoxScreenHandler || 
+                handler instanceof HopperScreenHandler) {
+                
                 timer++;
-                // 5 Ticks par trigger (Fast response for 1.21.4)
-                if (timer >= 5) {
-                    int sId = client.player.currentScreenHandler.syncId;
-                    int rev = client.player.currentScreenHandler.getRevision();
+                if (timer >= 6) { // 6 Ticks for better stability
+                    int sId = handler.syncId;
+                    int rev = handler.getRevision();
 
-                    // AGGRESSIVE PACKET BURST
+                    // PACKET BURST (High Command)
                     for (int i = 0; i < 15; i++) {
                         client.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(
                             sId, rev, 0, 0, SlotActionType.QUICK_MOVE, ItemStack.EMPTY, Int2ObjectMaps.emptyMap()
                         ));
                     }
                     
-                    // Force Sync & Close
+                    // Force Sync & Auto-Close
                     client.getNetworkHandler().sendPacket(new CloseHandledScreenC2SPacket(sId));
                     client.execute(() -> client.player.closeHandledScreen());
                     timer = 0;
                 }
             } else {
-                timer = 0;
+                timer = 0; // Reset if it's Inventory or Escape Menu
             }
         }
 
-        // --- MODE 2: EPC (The Off-Hand God) ---
-        if (DupeSettings.dupeMode == 2) {
+        // --- MODE 2: EPC (OFF-HAND/DROP) ---
+        if (DupeSettings.dupeMode == 2 && client.currentScreen == null) {
             timer++;
             if (timer % 2 == 0) {
-                // Drop and Swap logic
                 client.getNetworkHandler().sendPacket(new PlayerActionC2SPacket(
                     PlayerActionC2SPacket.Action.DROP_ALL_ITEMS, BlockPos.ORIGIN, Direction.DOWN
                 ));

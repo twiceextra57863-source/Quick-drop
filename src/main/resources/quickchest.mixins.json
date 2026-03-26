@@ -3,10 +3,8 @@
   "package": "com.quickchest.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "HopperDupeMixin",
+    "DupeNetworkMixin",
     "GameMenuMixin"
-  ],
-  "client": [
   ],
   "injectors": {
     "defaultRequire": 1

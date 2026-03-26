@@ -14,10 +14,10 @@
   "icon": "assets/quickchest/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "com.quickchest.QuickChestMod"
-    ]
-  },
+  "main": [
+    "com.quickchest.QuickChestMod"
+  ]
+},
   "mixins": [
     "quickchest.mixins.json"
   ],

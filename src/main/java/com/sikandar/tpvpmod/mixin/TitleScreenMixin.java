@@ -21,7 +21,7 @@ public abstract class TitleScreenMixin extends net.minecraft.client.gui.screen.S
         ButtonWidget tpvpButton = ButtonWidget.builder(
                 Text.literal("§cT PVP"),
                 button -> this.client.setScreen(new TPVPDashboardScreen())
-        ).dimensions(this.width / 2 - 100, y + spacingY * 3, 200, 20).build();   // position adjust kar sakta hai (*3 ya *4 try kar)
+        ).dimensions(this.width / 2 - 100, y + spacingY * 3, 200, 20).build();
 
         this.addDrawableChild(tpvpButton);
     }

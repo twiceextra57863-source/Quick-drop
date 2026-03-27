@@ -5,39 +5,76 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.text.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class SettingsPanel extends ElementListWidget<SettingsPanel.Entry> {
+public class SettingsPanel extends ClickableWidget {
     protected final TClientScreen parent;
     protected final List<ClickableWidget> widgets = new ArrayList<>();
+    protected int panelX;
+    protected int panelY;
+    protected int panelWidth;
+    protected int panelHeight;
     
     public SettingsPanel(TClientScreen parent, int x, int y) {
-        super(parent.client, parent.width - x - 20, parent.height - y - 20, y, 25);
+        super(x, y, parent.width - x - 20, parent.height - y - 20, Text.literal("Settings Panel"));
         this.parent = parent;
-        this.setLeftPos(x);
+        this.panelX = x;
+        this.panelY = y;
+        this.panelWidth = parent.width - x - 20;
+        this.panelHeight = parent.height - y - 20;
+    }
+    
+    public void addWidget(ClickableWidget widget) {
+        widgets.add(widget);
     }
     
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
+        // Draw panel background
+        context.fill(panelX, panelY, panelX + panelWidth, panelY + panelHeight, 0xFF2A2A2A);
+        context.fill(panelX, panelY, panelX + panelWidth, panelY + 1, 0xFF00A8FF);
+        
+        // Render all widgets
         for (ClickableWidget widget : widgets) {
             widget.render(context, mouseX, mouseY, delta);
         }
     }
     
-    protected static class Entry extends ElementListWidget.Entry<Entry> {
-        @Override
-        public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {}
-        
-        @Override
-        public List<ClickableWidget> selectableChildren() {
-            return List.of();
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for (ClickableWidget widget : widgets) {
+            if (widget.mouseClicked(mouseX, mouseY, button)) {
+                return true;
+            }
         }
-        
-        @Override
-        public List<ClickableWidget> children() {
-            return List.of();
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+    
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        for (ClickableWidget widget : widgets) {
+            if (widget.mouseReleased(mouseX, mouseY, button)) {
+                return true;
+            }
         }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+    
+    public int getPanelX() {
+        return panelX;
+    }
+    
+    public int getPanelY() {
+        return panelY;
+    }
+    
+    public int getPanelWidth() {
+        return panelWidth;
+    }
+    
+    public int getPanelHeight() {
+        return panelHeight;
     }
 }

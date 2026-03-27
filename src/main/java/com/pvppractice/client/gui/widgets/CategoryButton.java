@@ -1,6 +1,7 @@
 package com.pvppractice.client.gui.widgets;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
@@ -9,6 +10,7 @@ public class CategoryButton extends ButtonWidget {
     private final CategoryType categoryType;
     private boolean selected;
     private float hoverAnimation = 0;
+    private final TextRenderer textRenderer;
     
     public enum CategoryType {
         HEART_INDICATOR("❤ Heart Indicator", 0xFF5555),
@@ -37,6 +39,7 @@ public class CategoryButton extends ButtonWidget {
         super(x, y, width, height, Text.literal(categoryType.getDisplayName()), onPress, DEFAULT_NARRATION_SUPPLIER);
         this.categoryType = categoryType;
         this.selected = false;
+        this.textRenderer = MinecraftClient.getInstance().textRenderer;
     }
     
     public void setSelected(boolean selected) {
@@ -87,11 +90,11 @@ public class CategoryButton extends ButtonWidget {
         
         // Draw icon (using Unicode characters with color)
         String icon = categoryType.getDisplayName().substring(0, 2);
-        context.drawText(this.textRenderer, icon, getX() + 8, getY() + (getHeight() - 8) / 2, textColor, false);
+        context.drawText(textRenderer, icon, getX() + 8, getY() + (getHeight() - 8) / 2, textColor, false);
         
         // Draw text with shadow
         String displayText = categoryType.getDisplayName().substring(2);
-        context.drawText(this.textRenderer, displayText, getX() + 24, getY() + (getHeight() - 8) / 2, textColor, false);
+        context.drawText(textRenderer, displayText, getX() + 24, getY() + (getHeight() - 8) / 2, textColor, false);
         
         // Draw selection indicator if selected
         if (selected) {

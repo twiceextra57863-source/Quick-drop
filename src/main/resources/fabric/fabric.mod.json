@@ -1,0 +1,8 @@
+"entrypoints": {
+  "client": [
+    "com.sikandar.tpvpmod.TPVPMod"
+  ]
+},
+"mixins": [
+  "tpvpmod.mixins.json"
+]

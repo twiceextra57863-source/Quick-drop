@@ -4,7 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.PauseScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.screen.ScreenHandler;
@@ -17,8 +17,12 @@ public class SpeedChestMod implements ModInitializer {
         ModConfig.getInstance(); 
 
         // 1. Pause Menu Button Injection
+        // Hum specific class import karne ke bajaye screen ke type se check karenge
         ScreenEvents.AFTER_INIT.register((client, screen, access) -> {
-            if (screen instanceof PauseScreen) {
+            // Check if the current screen is the Pause Menu by checking its class name
+            // This avoids import issues with PauseScreen specifically
+            if (screen.getClass().getSimpleName().equals("PauseScreen")) {
+                
                 ButtonWidget myButton = ButtonWidget.builder(
                     Text.literal("⚡ Speed Chest Mod"),
                     btn -> client.setScreen(new SpeedChestScreen(screen))
@@ -28,13 +32,12 @@ public class SpeedChestMod implements ModInitializer {
                     200, 
                     20
                 ).build();
+                
                 screen.addDrawableChild(myButton);
             }
         });
 
         // 2. Chest Open Event Listener (Trigger)
-        // Note: Fabric doesn't have a direct "ChestOpen" event for logic, 
-        // so we hook into ScreenEvents to detect when a chest GUI opens.
         ScreenEvents.AFTER_INIT.register((client, screen, access) -> {
             if (screen instanceof net.minecraft.client.gui.screen.ingame.HandledScreen<?> handledScreen) {
                 ScreenHandler handler = handledScreen.getScreenHandler();

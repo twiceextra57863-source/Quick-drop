@@ -4,13 +4,10 @@
   "version": "${version}",
   "name": "Speed Chest Mini-Game",
   "description": "Auto store/drop/pick items at high speed!",
-  "authors": ["twicefear"],
+  "authors": ["YourName"],
   "license": "MIT",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
-    "main": [
-      "com.yourname.speedchestmod.SpeedChestMod"
-    ],
     "client": [
       "com.yourname.speedchestmod.SpeedChestMod"
     ]

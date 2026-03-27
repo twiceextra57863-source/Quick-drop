@@ -3,7 +3,6 @@
   "id": "speedchestmod",
   "version": "${version}",
   "name": "Speed Chest Mini-Game",
-  "description": "Auto store/drop/pick items at high speed!",
   "authors": ["YourName"],
   "license": "MIT",
   "environment": "client",
@@ -12,6 +11,9 @@
       "com.yourname.speedchestmod.SpeedChestMod"
     ]
   },
+  "mixins": [
+    "speedchestmod.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.15.0",
     "minecraft": "~1.20.4",

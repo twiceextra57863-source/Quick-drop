@@ -16,20 +16,24 @@ public class PlayerProfile {
     private Map<String, Integer> categoryPoints;
     
     public enum PlayerTier {
-        BASIC("§7[§fBASIC§7]", 0, "§7"),
-        ADVANCED("§b[§3ADVANCED§b]", 100, "§b"),
-        PRO("§a[§2PRO§a]", 500, "§a"),
-        EXTREME("§c[§4EXTREME§c]", 1500, "§c"),
-        LEGENDARY("§6[§eLEGEND§6]", 5000, "§6");
+        BASIC("§c[§4BASIC§c]", 0, "§c", "§4BASIC§r", 0xFF5555),
+        ADVANCED("§e[§6ADVANCED§e]", 100, "§e", "§6ADVANCED§r", 0xFFFF55),
+        PRO("§a[§2PRO§a]", 500, "§a", "§2PRO§r", 0x55FF55),
+        EXTREME("§b[§3EXTREME§b]", 1500, "§b", "§3EXTREME§r", 0x55FFFF),
+        LEGENDARY("§6[§eLEGEND§6]", 5000, "§6", "§eLEGEND§r", 0xFFAA00);
         
         public final String prefix;
         public final int requiredPoints;
         public final String color;
+        public final String displayName;
+        public final int rgbColor;
         
-        PlayerTier(String prefix, int requiredPoints, String color) {
+        PlayerTier(String prefix, int requiredPoints, String color, String displayName, int rgbColor) {
             this.prefix = prefix;
             this.requiredPoints = requiredPoints;
             this.color = color;
+            this.displayName = displayName;
+            this.rgbColor = rgbColor;
         }
         
         public static PlayerTier getTierByPoints(int points) {
@@ -38,6 +42,11 @@ public class PlayerProfile {
             if (points >= 500) return PRO;
             if (points >= 100) return ADVANCED;
             return BASIC;
+        }
+        
+        public static PlayerTier getTierByPointsWithColor(int points) {
+            PlayerTier tier = getTierByPoints(points);
+            return tier;
         }
     }
     
@@ -52,7 +61,6 @@ public class PlayerProfile {
         this.tier = PlayerTier.BASIC;
         this.categoryPoints = new HashMap<>();
         
-        // Initialize category points
         categoryPoints.put("combat", 0);
         categoryPoints.put("movement", 0);
         categoryPoints.put("visual", 0);
@@ -62,13 +70,13 @@ public class PlayerProfile {
         kills++;
         winStreak++;
         if (winStreak > bestStreak) bestStreak = winStreak;
-        addPoints(10); // 10 points per kill
+        addPoints(10);
     }
     
     public void addDeath() {
         deaths++;
         winStreak = 0;
-        addPoints(2); // 2 points for participation
+        addPoints(2);
     }
     
     public void addPoints(int points) {
@@ -91,6 +99,18 @@ public class PlayerProfile {
     
     public double getKDR() {
         return deaths == 0 ? kills : (double) kills / deaths;
+    }
+    
+    public String getFormattedName() {
+        return tier.color + tier.displayName + " §r" + username + " §7[" + totalPoints + " pts§7]";
+    }
+    
+    public String getTierWithColor() {
+        return tier.prefix;
+    }
+    
+    public int getTierColor() {
+        return tier.rgbColor;
     }
     
     // Getters

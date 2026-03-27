@@ -1,0 +1,9 @@
+{
+  "key.tclient.open_menu": "Open T Client Menu",
+  "category.tclient": "T Client",
+  "tclient.category.font": "Font Settings",
+  "tclient.font.apply": "Apply Font",
+  "tclient.font.reset": "Reset to Default",
+  "tclient.font.custom": "Custom Font",
+  "tclient.font.preview": "Preview"
+}

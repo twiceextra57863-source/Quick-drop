@@ -29,7 +29,6 @@ public class CategoryButton extends ButtonWidget {
         
         context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), bgColor);
         
-        // Draw left accent for selected
         if (selected) {
             context.fill(getX(), getY(), getX() + 3, getY() + getHeight(), 0xFFFFFFFF);
         }

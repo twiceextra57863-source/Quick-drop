@@ -12,17 +12,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(TitleScreen.class)
 public class TitleScreenMixin extends net.minecraft.client.gui.screen.Screen {
 
-    protected TitleScreenMixin() { super(Text.literal("Title Screen")); }
+    protected TitleScreenMixin() {
+        super(Text.literal("Title Screen"));
+    }
 
-    @Inject(method = "init", at = @At("TAIL"))
-    private void onInit(CallbackInfo ci) {
-        int btnW = 72, btnH = 16;
+    // "init" nahi — "initWidgetsNormal" use karo 1.21 mein
+    @Inject(method = "initWidgetsNormal", at = @At("TAIL"))
+    private void onInitWidgetsNormal(CallbackInfo ci) {
+        int btnW = 80;
+        int btnH = 18;
+        int btnX = this.width - btnW - 6;
+        int btnY = 6;
+
         this.addDrawableChild(
             ButtonWidget.builder(
-                Text.literal("■ T Client"),
+                Text.literal("§b■ T Client"),
                 button -> this.client.setScreen(new TClientScreen())
             )
-            .dimensions(this.width - btnW - 4, 4, btnW, btnH)
+            .dimensions(btnX, btnY, btnW, btnH)
             .build()
         );
     }

@@ -3,8 +3,8 @@ package com.yourname.speedchestmod;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.text.Text;
 
 public class SpeedChestScreen extends Screen {
     private final Screen parent;
@@ -33,8 +33,7 @@ public class SpeedChestScreen extends Screen {
         addDrawableChild(toggleButton);
 
         // Repeat Count Input
-        addDrawableChild(Text.of("Repeat Count:").asOrderedText()); // Label fix needed in real impl
-        countField = new TextFieldWidget(textRenderer, width / 2 - 100, height / 2 - 20, 200, 20, Text.literal(""));
+        countField = new TextFieldWidget(textRenderer, width / 2 - 100, height / 2 - 20, 200, 20, Text.literal("Count"));
         countField.setText(String.valueOf(config.repeatCount));
         countField.setChangedListener(s -> {
             try { config.repeatCount = Integer.parseInt(s); config.save(); } catch(Exception e){}
@@ -42,8 +41,7 @@ public class SpeedChestScreen extends Screen {
         addDrawableChild(countField);
 
         // Speed Input
-        addDrawableChild(Text.of("Speed (Ticks):").asOrderedText());
-        speedField = new TextFieldWidget(textRenderer, width / 2 - 100, height / 2 + 20, 200, 20, Text.literal(""));
+        speedField = new TextFieldWidget(textRenderer, width / 2 - 100, height / 2 + 20, 200, 20, Text.literal("Speed"));
         speedField.setText(String.valueOf(config.speedTicks));
         speedField.setChangedListener(s -> {
             try { config.speedTicks = Double.parseDouble(s); config.save(); } catch(Exception e){}
@@ -51,15 +49,24 @@ public class SpeedChestScreen extends Screen {
         addDrawableChild(speedField);
         
         // Back Button
-        addDrawableChild(ButtonWidget.builder(Text.literal("Back"), b -> close()).dimensions(width / 2 - 100, height / 2 + 60, 200, 20).build());
+        addDrawableChild(ButtonWidget.builder(Text.literal("Back"), b -> close())
+            .dimensions(width / 2 - 100, height / 2 + 60, 200, 20).build());
+            
+        // Set focus initially to none so keyboard doesn't type immediately
+        setInitialFocus(null);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
+        
+        // Draw Labels manually here instead of adding them as children
         context.drawText(textRenderer, "Repeat Count:", width / 2 - 95, height / 2 - 30, 0xFFFFFF, true);
         context.drawText(textRenderer, "Speed (0.1 = Max):", width / 2 - 95, height / 2 + 10, 0xFFFFFF, true);
+        
+        // Draw Title
+        context.drawCenteredTextWithShadow(textRenderer, title, width / 2, height / 4 - 10, 0xFFFFFF);
     }
 
     @Override

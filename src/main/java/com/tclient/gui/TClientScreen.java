@@ -10,86 +10,73 @@ import java.util.List;
 
 public class TClientScreen extends Screen {
     private final Screen parent;
-    private int selectedCategory = 0; // 0 = Fonts, 1 = Visuals, etc.
+    private int selectedCategory = 0;
     private final List<String> categories = new ArrayList<>();
+    private int scrollOffset = 0;
 
     public TClientScreen(Screen parent) {
         super(Text.literal("T Client Menu"));
         this.parent = parent;
-        
-        // Add categories here
         categories.add("Fonts");
         categories.add("Visuals");
         categories.add("Combat");
-        categories.add("Misc");
     }
 
     @Override
     protected void init() {
         this.clearChildren();
 
-        // --- LEFT SIDEBAR (Vertical Menu) ---
-        int sidebarWidth = 90;
+        // --- SIDEBAR ---
         for (int i = 0; i < categories.size(); i++) {
             int index = i;
-            String categoryName = categories.get(i);
-            
-            this.addDrawableChild(ButtonWidget.builder(Text.literal(categoryName), button -> {
+            this.addDrawableChild(ButtonWidget.builder(Text.literal(categories.get(i)), button -> {
                 selectedCategory = index;
-                this.init(); // Refresh UI to show selected category buttons
+                this.init();
             }).dimensions(10, 40 + (i * 25), 80, 20).build());
         }
 
-        // --- RIGHT DASHBOARD CONTENT ---
-        // Only show Font buttons if "Fonts" category (index 0) is selected
+        // --- FONT LIST WITH PAGINATION/SCROLL ---
         if (selectedCategory == 0) {
-            // Modern Font Button
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Modern Font"), button -> {
-                FontManager.currentFont = "modern";
-            }).dimensions(110, 50, 120, 20).build());
-
-            // Smooth Font Button
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Smooth Font"), button -> {
-                FontManager.currentFont = "smooth";
-            }).dimensions(110, 80, 120, 20).build());
-
-            // Default Font Button
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Default Font"), button -> {
-                FontManager.currentFont = "default";
-            }).dimensions(110, 110, 120, 20).build());
+            List<String> fonts = FontManager.availableFonts;
+            int startX = 115;
+            int startY = 50;
+            
+            for (int i = 0; i < fonts.size(); i++) {
+                String fontName = fonts.get(i);
+                // Grid layout (2 columns)
+                int col = i % 2;
+                int row = i / 2;
+                
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(fontName), button -> {
+                    FontManager.currentFont = fontName;
+                }).dimensions(startX + (col * 110), startY + (row * 25), 100, 20).build());
+            }
+            
+            // Refresh Button to scan new fonts in folder
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("§aScan Folder"), button -> {
+                FontManager.loadExternalFonts();
+                this.init();
+            }).dimensions(this.width - 90, this.height - 30, 80, 20).build());
         }
 
-        // --- BOTTOM BACK BUTTON ---
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Back to Game"), button -> {
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Back"), button -> {
             this.client.setScreen(parent);
         }).dimensions(10, this.height - 30, 80, 20).build());
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // 1. Black translucent background
         this.renderBackground(context, mouseX, mouseY, delta);
-        
-        // 2. Sidebar Background Panel
-        context.fill(0, 0, 100, this.height, 0xAA111111); // Dark Gray sidebar
-        
-        // 3. Main Content Panel
-        context.fill(105, 10, this.width - 10, this.height - 10, 0x88000000); // Transparent black dashboard
+        context.fill(0, 0, 100, this.height, 0xAA111111);
+        context.fill(105, 10, this.width - 10, this.height - 10, 0x88000000);
 
-        // 4. Header Title
-        context.drawTextWithShadow(this.textRenderer, "§bT-CLIENT §7| " + categories.get(selectedCategory).toUpperCase(), 115, 20, 0xFFFFFF);
-
-        // 5. Help Text for Font Category
+        context.drawTextWithShadow(this.textRenderer, "§bT-CLIENT §7> " + categories.get(selectedCategory), 115, 20, 0xFFFFFF);
+        
         if (selectedCategory == 0) {
-            context.drawTextWithShadow(this.textRenderer, "§eCurrent Font: §f" + FontManager.currentFont, 115, 140, 0xFFFFFF);
-            context.drawTextWithShadow(this.textRenderer, "Note: Make sure to add .ttf in assets.", 115, 160, 0xAAAAAA);
+            context.drawTextWithShadow(this.textRenderer, "§eActive: §f" + FontManager.currentFont, 115, 35, 0xFFFFFF);
+            context.drawTextWithShadow(this.textRenderer, "Put .ttf files in: .minecraft/config/T-Client/fonts", 115, this.height - 25, 0xAAAAAA);
         }
 
         super.render(context, mouseX, mouseY, delta);
-    }
-
-    @Override
-    public boolean shouldPause() {
-        return false; // Game pause nahi hoga menu kholne pe (Pro feel)
     }
 }

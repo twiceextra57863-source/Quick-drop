@@ -1,25 +1,29 @@
 {
   "schemaVersion": 1,
-  "id": "dupemod",
+  "id": "speedchestmod",
   "version": "${version}",
-  "name": "Dupe Mod",
-  "description": "Feather-Style Interface with Chest Dupe Engine",
-  "authors": [ "minetwice and hellfire" ],
-  "contact": { "sources": "https://github.com" },
+  "name": "Speed Chest Mini-Game",
+  "description": "Auto store/drop/pick items at high speed!",
+  "authors": ["minetwice"],
+  "contact": {},
   "license": "MIT",
-  "icon": "assets/dupemod/icon.png",
-  "environment": "client",
+  "icon": "assets/speedchestmod/icon.png",
+  "environment": "*",
   "entrypoints": {
     "main": [
-      "com.yourname.dupemod.DupeMod"
+      "com.yourname.speedchestmod.SpeedChestMod"
+    ],
+    "client": [
+      "com.yourname.speedchestmod.SpeedChestMod"
     ]
   },
   "mixins": [
-    "dupemod.mixins.json"
+    "speedchestmod.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.15.0",
-    "minecraft": "~1.21",
-    "java": ">=21"
+    "minecraft": "~1.20.4",
+    "java": ">=21",
+    "fabric-api": "*"
   }
 }

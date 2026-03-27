@@ -1,22 +1,26 @@
 {
   "schemaVersion": 1,
-  "id": "speedchestmod",
-  "version": "${version}",
-  "name": "Speed Chest Mini-Game",
-  "authors": ["YourName"],
+  "id": "tclient",
+  "version": "1.0.0",
+  "name": "T Client",
+  "description": "A powerful client-side mod with advanced customization options",
+  "authors": ["TWICEFEAR"],
+  "contact": {},
   "license": "MIT",
+  "icon": "assets/tclient/icon.png",
   "environment": "client",
   "entrypoints": {
+    "main": [
+      "com.yourmod.TClientMod"
+    ],
     "client": [
-      "com.yourname.speedchestmod.SpeedChestMod"
+      "com.yourmod.client.TClientModClient"
     ]
   },
-  "mixins": [
-    "speedchestmod.mixins.json"
-  ],
+  "mixins": [],
   "depends": {
-    "fabricloader": ">=0.15.0",
-    "minecraft": "~1.20.4",
+    "fabricloader": ">=0.14.0",
+    "minecraft": ">=1.20",
     "java": ">=21",
     "fabric-api": "*"
   }

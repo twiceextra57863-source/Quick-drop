@@ -1,8 +1,25 @@
-"entrypoints": {
-  "client": [
-    "com.sikandar.tpvpmod.TPVPMod"
-  ]
-},
-"mixins": [
-  "tpvpmod.mixins.json"
-]
+{
+  "schemaVersion": 1,
+  "id": "tpvpmod",
+  "version": "${version}",
+  "name": "T PVP Mod",
+  "description": "T PVP Dashboard with Health Indicator",
+  "authors": ["Sikandar"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/tpvpmod/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.sikandar.tpvpmod.TPVPMod"
+    ]
+  },
+  "mixins": [
+    "tpvpmod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21",
+    "fabric-api": "*"
+  }
+}

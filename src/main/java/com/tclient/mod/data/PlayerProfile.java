@@ -16,24 +16,26 @@ public class PlayerProfile {
     private Map<String, Integer> categoryPoints;
     
     public enum PlayerTier {
-        BASIC("§c[§4BASIC§c]", 0, "§c", "§4BASIC§r", 0xFF5555),
-        ADVANCED("§e[§6ADVANCED§e]", 100, "§e", "§6ADVANCED§r", 0xFFFF55),
-        PRO("§a[§2PRO§a]", 500, "§a", "§2PRO§r", 0x55FF55),
-        EXTREME("§b[§3EXTREME§b]", 1500, "§b", "§3EXTREME§r", 0x55FFFF),
-        LEGENDARY("§6[§eLEGEND§6]", 5000, "§6", "§eLEGEND§r", 0xFFAA00);
+        BASIC("§c[§4BASIC§c]", "§c", "§4BASIC§r", 0, 0xFF5555, "RED"),
+        ADVANCED("§e[§6ADVANCED§e]", "§e", "§6ADVANCED§r", 100, 0xFFFF55, "YELLOW"),
+        PRO("§a[§2PRO§a]", "§a", "§2PRO§r", 500, 0x55FF55, "GREEN"),
+        EXTREME("§b[§3EXTREME§b]", "§b", "§3EXTREME§r", 1500, 0x55FFFF, "AQUA"),
+        LEGENDARY("§6[§eLEGEND§6]", "§6", "§eLEGEND§r", 5000, 0xFFAA00, "GOLD");
         
         public final String prefix;
-        public final int requiredPoints;
         public final String color;
         public final String displayName;
+        public final int requiredPoints;
         public final int rgbColor;
+        public final String colorName;
         
-        PlayerTier(String prefix, int requiredPoints, String color, String displayName, int rgbColor) {
+        PlayerTier(String prefix, String color, String displayName, int requiredPoints, int rgbColor, String colorName) {
             this.prefix = prefix;
-            this.requiredPoints = requiredPoints;
             this.color = color;
             this.displayName = displayName;
+            this.requiredPoints = requiredPoints;
             this.rgbColor = rgbColor;
+            this.colorName = colorName;
         }
         
         public static PlayerTier getTierByPoints(int points) {
@@ -44,9 +46,20 @@ public class PlayerProfile {
             return BASIC;
         }
         
-        public static PlayerTier getTierByPointsWithColor(int points) {
-            PlayerTier tier = getTierByPoints(points);
-            return tier;
+        public static PlayerTier getTierByName(String name) {
+            try {
+                return PlayerTier.valueOf(name);
+            } catch (IllegalArgumentException e) {
+                return BASIC;
+            }
+        }
+        
+        public String getFormattedPrefix() {
+            return prefix;
+        }
+        
+        public String getColoredName() {
+            return color + displayName;
         }
     }
     
@@ -61,9 +74,12 @@ public class PlayerProfile {
         this.tier = PlayerTier.BASIC;
         this.categoryPoints = new HashMap<>();
         
+        // Initialize category points
         categoryPoints.put("combat", 0);
         categoryPoints.put("movement", 0);
         categoryPoints.put("visual", 0);
+        categoryPoints.put("pvp", 0);
+        categoryPoints.put("survival", 0);
     }
     
     public void addKill() {
@@ -71,12 +87,15 @@ public class PlayerProfile {
         winStreak++;
         if (winStreak > bestStreak) bestStreak = winStreak;
         addPoints(10);
+        addCategoryPoints("combat", 10);
+        addCategoryPoints("pvp", 10);
     }
     
     public void addDeath() {
         deaths++;
         winStreak = 0;
         addPoints(2);
+        addCategoryPoints("combat", 2);
     }
     
     public void addPoints(int points) {
@@ -86,14 +105,15 @@ public class PlayerProfile {
     
     public void addCategoryPoints(String category, int points) {
         categoryPoints.put(category, categoryPoints.getOrDefault(category, 0) + points);
-        addPoints(points);
     }
     
     private void updateTier() {
         PlayerTier newTier = PlayerTier.getTierByPoints(totalPoints);
         if (newTier != tier) {
+            PlayerTier oldTier = tier;
             tier = newTier;
-            System.out.println(username + " reached " + tier.name() + " tier!");
+            System.out.println("§6[TClient] §7" + username + " §eadvanced from " + 
+                             oldTier.colorName + " §eto §a" + newTier.colorName + " §7tier! §6[" + totalPoints + " points§6]");
         }
     }
     
@@ -109,8 +129,72 @@ public class PlayerProfile {
         return tier.prefix;
     }
     
+    public String getSimpleTierDisplay() {
+        return tier.color + "[" + tier.name() + "]" + "§r";
+    }
+    
     public int getTierColor() {
         return tier.rgbColor;
+    }
+    
+    public String getTierColorCode() {
+        return tier.color;
+    }
+    
+    public int getNextTierPoints() {
+        switch(tier) {
+            case BASIC: return PlayerTier.ADVANCED.requiredPoints - totalPoints;
+            case ADVANCED: return PlayerTier.PRO.requiredPoints - totalPoints;
+            case PRO: return PlayerTier.EXTREME.requiredPoints - totalPoints;
+            case EXTREME: return PlayerTier.LEGENDARY.requiredPoints - totalPoints;
+            default: return 0;
+        }
+    }
+    
+    public double getProgressToNextTier() {
+        int nextRequired = getNextTierPoints();
+        if (nextRequired <= 0) return 100.0;
+        
+        int currentTierPoints = 0;
+        switch(tier) {
+            case BASIC: currentTierPoints = totalPoints; break;
+            case ADVANCED: currentTierPoints = totalPoints - PlayerTier.ADVANCED.requiredPoints; break;
+            case PRO: currentTierPoints = totalPoints - PlayerTier.PRO.requiredPoints; break;
+            case EXTREME: currentTierPoints = totalPoints - PlayerTier.EXTREME.requiredPoints; break;
+            default: return 100.0;
+        }
+        
+        int tierRequirement = 0;
+        switch(tier) {
+            case BASIC: tierRequirement = PlayerTier.ADVANCED.requiredPoints - 0; break;
+            case ADVANCED: tierRequirement = PlayerTier.PRO.requiredPoints - PlayerTier.ADVANCED.requiredPoints; break;
+            case PRO: tierRequirement = PlayerTier.EXTREME.requiredPoints - PlayerTier.PRO.requiredPoints; break;
+            case EXTREME: tierRequirement = PlayerTier.LEGENDARY.requiredPoints - PlayerTier.EXTREME.requiredPoints; break;
+            default: return 100.0;
+        }
+        
+        return (currentTierPoints * 100.0) / tierRequirement;
+    }
+    
+    public String getRankTitle() {
+        if (totalPoints >= 10000) return "§6[§eGOD§6]";
+        if (totalPoints >= 5000) return "§6[§eLEGEND§6]";
+        if (totalPoints >= 2500) return "§b[§3MYTHIC§b]";
+        if (totalPoints >= 1500) return "§b[§3EXTREME§b]";
+        if (totalPoints >= 1000) return "§a[§2ELITE§a]";
+        if (totalPoints >= 500) return "§a[§2PRO§a]";
+        if (totalPoints >= 250) return "§e[§6SKILLED§e]";
+        if (totalPoints >= 100) return "§e[§6ADVANCED§e]";
+        if (totalPoints >= 50) return "§7[§fNOVICE§7]";
+        return "§c[§4BASIC§c]";
+    }
+    
+    public Map<String, Integer> getCategoryPoints() {
+        return categoryPoints;
+    }
+    
+    public int getCategoryPoints(String category) {
+        return categoryPoints.getOrDefault(category, 0);
     }
     
     // Getters
@@ -122,15 +206,65 @@ public class PlayerProfile {
     public int getWinStreak() { return winStreak; }
     public int getBestStreak() { return bestStreak; }
     public PlayerTier getTier() { return tier; }
-    public Map<String, Integer> getCategoryPoints() { return categoryPoints; }
     
-    public int getNextTierPoints() {
-        switch(tier) {
-            case BASIC: return PlayerTier.ADVANCED.requiredPoints - totalPoints;
-            case ADVANCED: return PlayerTier.PRO.requiredPoints - totalPoints;
-            case PRO: return PlayerTier.EXTREME.requiredPoints - totalPoints;
-            case EXTREME: return PlayerTier.LEGENDARY.requiredPoints - totalPoints;
-            default: return 0;
+    // Setters for loading from file
+    public void setTotalPoints(int points) {
+        this.totalPoints = points;
+        updateTier();
+    }
+    
+    public void setKills(int kills) {
+        this.kills = kills;
+    }
+    
+    public void setDeaths(int deaths) {
+        this.deaths = deaths;
+    }
+    
+    public void setWinStreak(int streak) {
+        this.winStreak = streak;
+    }
+    
+    public void setBestStreak(int streak) {
+        this.bestStreak = streak;
+    }
+    
+    public void setTierFromName(String tierName) {
+        try {
+            this.tier = PlayerTier.valueOf(tierName);
+        } catch (IllegalArgumentException e) {
+            this.tier = PlayerTier.BASIC;
         }
     }
-}
+    
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
+    // Stats methods
+    public String getStatsString() {
+        return String.format("§7=== §6%s §7===§r\n" +
+                           "§7Tier: %s %s§r\n" +
+                           "§7Points: §e%d§r\n" +
+                           "§7Kills: §a%d§r\n" +
+                           "§7Deaths: §c%d§r\n" +
+                           "§7KDR: §f%.2f§r\n" +
+                           "§7Win Streak: §b%d§r\n" +
+                           "§7Best Streak: §d%d§r\n" +
+                           "§7Next Tier: §f%d points§r",
+                           username,
+                           tier.color, tier.name(),
+                           totalPoints,
+                           kills,
+                           deaths,
+                           getKDR(),
+                           winStreak,
+                           bestStreak,
+                           getNextTierPoints());
+    }
+    
+    @Override
+    public String toString() {
+        return getFormattedName();
+    }
+    }

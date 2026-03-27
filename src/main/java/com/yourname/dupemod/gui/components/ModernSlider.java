@@ -22,7 +22,6 @@ public class ModernSlider extends SliderWidget {
 
     @Override
     protected void updateMessage() {
-        // Displays: "Delay: 50ms"
         double currentValue = min + (value * (max - min));
         setMessage(Text.of(prefix + ": " + (int)currentValue + "ms"));
     }
@@ -33,19 +32,20 @@ public class ModernSlider extends SliderWidget {
         onValueChange.accept(currentValue);
     }
 
+    // YAHAN FIX HAI: 'protected' ko 'public' kar diya gaya hai
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        // 1. Draw Background Track (Darker Grey - Feather Style)
+    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+        // Background Track (Sleek Grey)
         context.fill(this.getX(), this.getY() + (this.height / 2) - 2, this.getX() + this.width, this.getY() + (this.height / 2) + 2, 0xFF333333);
 
-        // 2. Draw the "Filled" part of the track (Cyan/Blue Accent)
+        // Filled Part (Cyan/Aqua Accent)
         int thumbX = (int) (this.getX() + (this.value * (this.width - 8)));
         context.fill(this.getX(), this.getY() + (this.height / 2) - 2, thumbX + 4, this.getY() + (this.height / 2) + 2, 0xFF00FBFF);
 
-        // 3. Draw the Thumb (Circle/Square handle)
+        // Thumb Handle (White)
         context.fill(thumbX, this.getY(), thumbX + 8, this.getY() + this.height, 0xFFFFFFFF);
 
-        // 4. Draw the Text Label above the slider
+        // Text Label
         context.drawCenteredTextWithShadow(
             net.minecraft.client.MinecraftClient.getInstance().textRenderer, 
             this.getMessage(), 
@@ -55,4 +55,3 @@ public class ModernSlider extends SliderWidget {
         );
     }
 }
-

@@ -12,11 +12,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(TitleScreen.class)
 public class TitleScreenMixin {
     
-    // Minecraft 1.21 mein init method use hota hai
+    // Method 1: init use karo
     @Inject(method = "init", at = @At("TAIL"))
     private void onInit(CallbackInfo ci) {
-        TitleScreen screen = (TitleScreen)(Object)this;
-        
+        addTClientButton((TitleScreen)(Object)this);
+    }
+    
+    // Method 2: Agar init nahi chalta to widgets use karo
+    @Inject(method = "initWidgets", at = @At("TAIL"))
+    private void onInitWidgets(CallbackInfo ci) {
+        addTClientButton((TitleScreen)(Object)this);
+    }
+    
+    private void addTClientButton(TitleScreen screen) {
         int btnW = 80;
         int btnH = 18;
         int btnX = screen.width - btnW - 6;

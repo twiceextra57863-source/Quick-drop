@@ -40,7 +40,7 @@ public class FontSettingsCategory extends SettingsPanel {
             ButtonWidget fontButton = ButtonWidget.builder(
                 Text.literal(availableFonts[i]),
                 button -> onFontSelected(index)
-            ).dimensions(10, currentY, 150, 20).build();
+            ).dimensions(panelX + 10, panelY + currentY, 150, 20).build();
             
             fontButtons.add(fontButton);
             addWidget(fontButton);
@@ -50,7 +50,7 @@ public class FontSettingsCategory extends SettingsPanel {
         currentY += 10;
         
         // Custom font input
-        customFontField = new TextFieldWidget(parent.textRenderer, 10, currentY, 200, 20, Text.literal("Custom Font Name"));
+        customFontField = new TextFieldWidget(parent.textRenderer, panelX + 10, panelY + currentY, 200, 20, Text.literal("Custom Font Name"));
         customFontField.setPlaceholder(Text.literal("Enter custom font name"));
         customFontField.setText(ModConfig.getCustomFontName());
         addWidget(customFontField);
@@ -61,12 +61,12 @@ public class FontSettingsCategory extends SettingsPanel {
         applyButton = ButtonWidget.builder(
             Text.literal("Apply Font"),
             button -> applyFont()
-        ).dimensions(10, currentY, 90, 20).build();
+        ).dimensions(panelX + 10, panelY + currentY, 90, 20).build();
         
         resetButton = ButtonWidget.builder(
             Text.literal("Reset to Default"),
             button -> resetToDefault()
-        ).dimensions(110, currentY, 90, 20).build();
+        ).dimensions(panelX + 110, panelY + currentY, 90, 20).build();
         
         addWidget(applyButton);
         addWidget(resetButton);
@@ -165,17 +165,17 @@ public class FontSettingsCategory extends SettingsPanel {
         // Draw current font info
         context.drawTextWithShadow(parent.textRenderer, 
             Text.literal("Current Font: §e" + ModConfig.getCurrentFont()), 
-            x, panelY + currentY, 0xFFAAAAAA);
+            x, panelY + currentY + 10, 0xFFAAAAAA);
         
         // Show preview if custom font
         if (selectedFontIndex == availableFonts.length - 1 && !customFontField.getText().isEmpty()) {
             context.drawTextWithShadow(parent.textRenderer, 
                 Text.literal("Preview: §a" + customFontField.getText()), 
-                x, panelY + currentY + 15, 0xFFAAAAAA);
+                x, panelY + currentY + 25, 0xFFAAAAAA);
         }
         
         // Draw separator line
-        context.fill(panelX, panelY + 50, panelX + panelWidth, panelY + 51, 0xFF444444);
+        context.fill(panelX, panelY + 55, panelX + panelWidth, panelY + 56, 0xFF444444);
     }
     
     @Override

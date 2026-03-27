@@ -1,6 +1,7 @@
 package com.pvppractice.client.gui;
 
 import com.pvppractice.config.PVPConfig;
+import com.pvppractice.client.render.HeartIndicatorType;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -34,10 +35,10 @@ public class HeartIndicatorSettingsScreen extends Screen {
             }
         ).dimensions(centerX - 100, startY, 200, 20).build());
         
-        // Heart Style selector
-        this.addDrawableChild(CyclingButtonWidget.<PVPConfig.HeartStyle>builder(
+        // Heart Style selector - using HeartIndicatorType
+        this.addDrawableChild(CyclingButtonWidget.<HeartIndicatorType>builder(
             style -> Text.literal("Style: " + style.getDisplayName())
-        ).values(PVPConfig.HeartStyle.values())
+        ).values(HeartIndicatorType.values())
         .initially(config.heartStyle)
         .build(centerX - 100, startY + 30, 200, 20, Text.literal("Heart Style"), 
             (button, style) -> {

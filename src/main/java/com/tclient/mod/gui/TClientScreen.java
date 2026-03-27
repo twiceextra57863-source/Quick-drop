@@ -52,15 +52,28 @@ public class TClientScreen extends Screen {
         categories.add(new CategoryEntry("MISC",     "⚙", "Misc"));
 
         panels.add(new FontChangerPanel(this));
-        panels.add(new ComingSoonPanel("Combat features coming soon..."));
+        
+        // PVP Settings Panel for Combat category
+        try {
+            panels.add(new PVPSettingsPanel(this));
+        } catch (Exception e) {
+            System.err.println("Failed to load PVPSettingsPanel: " + e.getMessage());
+            panels.add(new ComingSoonPanel("PVP Settings - Coming Soon"));
+        }
+        
         panels.add(new ComingSoonPanel("Movement features coming soon..."));
         panels.add(new ComingSoonPanel("Player features coming soon..."));
         panels.add(new ComingSoonPanel("World features coming soon..."));
         panels.add(new ComingSoonPanel("HUD features coming soon..."));
         panels.add(new ComingSoonPanel("Misc features coming soon..."));
 
-        for (TClientPanel p : panels)
-            p.init(client, width, height, SIDEBAR_WIDTH, HEADER_HEIGHT, FOOTER_HEIGHT);
+        for (TClientPanel p : panels) {
+            try {
+                p.init(client, width, height, SIDEBAR_WIDTH, HEADER_HEIGHT, FOOTER_HEIGHT);
+            } catch (Exception e) {
+                System.err.println("Failed to init panel: " + e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -81,8 +94,14 @@ public class TClientScreen extends Screen {
 
         // Content Panels
         if (selectedCategory >= 0 && selectedCategory < panels.size()) {
-            panels.get(selectedCategory).render(ctx, mouseX, mouseY, delta,
-                    SIDEBAR_WIDTH + 1, HEADER_HEIGHT, width, height - FOOTER_HEIGHT);
+            try {
+                panels.get(selectedCategory).render(ctx, mouseX, mouseY, delta,
+                        SIDEBAR_WIDTH + 1, HEADER_HEIGHT, width, height - FOOTER_HEIGHT);
+            } catch (Exception e) {
+                // Fallback render if panel fails
+                ctx.drawText(textRenderer, "§cError loading panel: " + e.getMessage(), 
+                    SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 50, 0xFF5555, false);
+            }
         }
 
         drawFooter(ctx, width, height);
@@ -156,16 +175,26 @@ public class TClientScreen extends Screen {
                 return true;
             }
         }
-        if (selectedCategory >= 0 && selectedCategory < panels.size())
-            panels.get(selectedCategory).mouseClicked(mouseX, mouseY, button,
-                    SIDEBAR_WIDTH + 1, HEADER_HEIGHT, width, height - FOOTER_HEIGHT);
+        if (selectedCategory >= 0 && selectedCategory < panels.size()) {
+            try {
+                panels.get(selectedCategory).mouseClicked(mouseX, mouseY, button,
+                        SIDEBAR_WIDTH + 1, HEADER_HEIGHT, width, height - FOOTER_HEIGHT);
+            } catch (Exception e) {
+                System.err.println("Error in panel mouseClicked: " + e.getMessage());
+            }
+        }
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double h, double v) {
-        if (selectedCategory >= 0 && selectedCategory < panels.size())
-            panels.get(selectedCategory).mouseScrolled(mouseX, mouseY, v);
+        if (selectedCategory >= 0 && selectedCategory < panels.size()) {
+            try {
+                panels.get(selectedCategory).mouseScrolled(mouseX, mouseY, v);
+            } catch (Exception e) {
+                System.err.println("Error in panel mouseScrolled: " + e.getMessage());
+            }
+        }
         return super.mouseScrolled(mouseX, mouseY, h, v);
     }
 
@@ -178,4 +207,4 @@ public class TClientScreen extends Screen {
             this.id = id; this.icon = icon; this.label = label;
         }
     }
-}
+                     }

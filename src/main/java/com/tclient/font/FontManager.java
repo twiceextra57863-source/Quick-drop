@@ -13,32 +13,9 @@ public class FontManager {
 
     public static void init() {
         if (availableFonts.isEmpty()) {
-            availableFonts.add("Default");
-            availableFonts.add("Modern");
-            availableFonts.add("Smooth");
-            availableFonts.add("Minecraftia");
-            availableFonts.add("Roboto");
-            availableFonts.add("Arial");
-            availableFonts.add("Impact");
-            availableFonts.add("Verdana");
-            availableFonts.add("ComicSans");
-            availableFonts.add("Pixel-Pro");
-            
+            String[] premade = {"Default", "Modern", "Smooth", "Minecraftia", "Roboto", "Arial", "Impact", "PixelPro"};
+            for (String f : premade) availableFonts.add(f);
             if (!FONT_DIR.exists()) FONT_DIR.mkdirs();
-            loadExternalFonts();
-        }
-    }
-
-    public static void loadExternalFonts() {
-        if (!FONT_DIR.exists()) return;
-        File[] files = FONT_DIR.listFiles((dir, name) -> name.toLowerCase().endsWith(".ttf"));
-        if (files != null) {
-            for (File file : files) {
-                String name = file.getName().replace(".ttf", "");
-                if (!availableFonts.contains(name)) {
-                    availableFonts.add(name);
-                }
-            }
         }
     }
 
@@ -46,8 +23,7 @@ public class FontManager {
         if (currentFont == null || currentFont.equals("Default")) {
             return Identifier.of("minecraft", "default");
         }
-        // Lowercase and underscore are mandatory for Minecraft 1.21 identifiers
-        String path = currentFont.toLowerCase().replace(" ", "_");
-        return Identifier.of("tclient", path);
+        // Identifier hamesha lowercase hona chahiye
+        return Identifier.of("tclient", currentFont.toLowerCase().replace(" ", "_"));
     }
 }

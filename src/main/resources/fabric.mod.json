@@ -1,18 +1,11 @@
 {
   "schemaVersion": 1,
   "id": "tclient",
-  "version": "${version}",
+  "version": "1.0.0",
   "name": "T-Client",
-  "description": "A professional mod client for pro players with custom fonts and design.",
-  "authors": [
-    "minetwice"
-  ],
-  "contact": {
-    "homepage": "https://fabricmc.net",
-    "sources": "https://github.com"
-  },
+  "description": "Professional Mod Client",
+  "authors": ["Twicefear"],
   "license": "MIT",
-  "icon": "assets/tclient/icon.png",
   "environment": "client",
   "entrypoints": {
     "main": [
@@ -24,11 +17,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.16.10",
-    "minecraft": "~1.21.4",
-    "java": ">=21",
-    "fabric-api": "*"
-  },
-  "suggests": {
-    "modmenu": "*"
+    "minecraft": "1.21.4",
+    "java": ">=21"
   }
 }

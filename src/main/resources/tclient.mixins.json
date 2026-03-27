@@ -3,7 +3,14 @@
   "minVersion": "0.8",
   "package": "com.tclient.mod.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "KillTrackerMixin",
+    "ReachMixin",
+    "VelocityMixin",
+    "NametagRendererMixin",
+    "PlayerListMixin",
+    "ChatFormatterMixin"
+  ],
   "client": [
     "TitleScreenMixin",
     "GameMenuScreenMixin",

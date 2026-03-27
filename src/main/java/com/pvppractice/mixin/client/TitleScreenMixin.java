@@ -17,16 +17,15 @@ public class TitleScreenMixin {
     private void onInit(CallbackInfo ci) {
         TitleScreen titleScreen = (TitleScreen)(Object)this;
         
-        // Add PVP Practice button to title screen
+        // Add PVP Practice button to title screen using a different approach
         ButtonWidget pvpButton = ButtonWidget.builder(
             Text.literal("§c❤ PVP Practice"),
             button -> {
-                // Use MinecraftClient.getInstance() instead of accessing protected field
                 MinecraftClient.getInstance().setScreen(new PVPDashboardScreen());
             }
         ).dimensions(titleScreen.width / 2 + 100, titleScreen.height / 4 + 48 + 72, 120, 20).build();
         
-        // Add button to screen using the addDrawableChild method (it's accessible in mixin)
-        titleScreen.addDrawableChild(pvpButton);
+        // Add the button to the screen - use the addDrawable method instead
+        titleScreen.addDrawable(pvpButton);
     }
 }

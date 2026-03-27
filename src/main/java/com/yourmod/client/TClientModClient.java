@@ -1,6 +1,5 @@
 package com.yourmod.client;
 
-import com.yourmod.TClientMod;
 import com.yourmod.client.gui.TClientScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;

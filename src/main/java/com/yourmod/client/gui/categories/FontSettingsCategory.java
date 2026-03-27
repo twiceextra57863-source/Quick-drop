@@ -1,10 +1,10 @@
 package com.yourmod.client.gui.categories;
 
 import com.yourmod.client.gui.components.SettingsPanel;
-import com.yourmod.client.gui.TClientScreen;
 import com.yourmod.config.ModConfig;
 import com.yourmod.utils.FontManager;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
@@ -26,8 +26,8 @@ public class FontSettingsCategory extends SettingsPanel {
         "Verdana", "Comic Sans MS", "Impact", "Georgia", "Custom"
     };
     
-    public FontSettingsCategory(TClientScreen parent, int x, int y) {
-        super(parent, x, y);
+    public FontSettingsCategory(Screen parent, int x, int y, int width, int height) {
+        super(parent, x, y, width, height);
         initializeComponents();
     }
     
@@ -40,7 +40,7 @@ public class FontSettingsCategory extends SettingsPanel {
             ButtonWidget fontButton = ButtonWidget.builder(
                 Text.literal(availableFonts[i]),
                 button -> onFontSelected(index)
-            ).dimensions(panelX + 10, panelY + currentY, 150, 20).build();
+            ).dimensions(x + 10, y + currentY, 150, 20).build();
             
             fontButtons.add(fontButton);
             addWidget(fontButton);
@@ -50,7 +50,7 @@ public class FontSettingsCategory extends SettingsPanel {
         currentY += 10;
         
         // Custom font input
-        customFontField = new TextFieldWidget(parent.textRenderer, panelX + 10, panelY + currentY, 200, 20, Text.literal("Custom Font Name"));
+        customFontField = new TextFieldWidget(parent.getTextRenderer(), x + 10, y + currentY, 200, 20, Text.literal("Custom Font Name"));
         customFontField.setPlaceholder(Text.literal("Enter custom font name"));
         customFontField.setText(ModConfig.getCustomFontName());
         addWidget(customFontField);
@@ -61,12 +61,12 @@ public class FontSettingsCategory extends SettingsPanel {
         applyButton = ButtonWidget.builder(
             Text.literal("Apply Font"),
             button -> applyFont()
-        ).dimensions(panelX + 10, panelY + currentY, 90, 20).build();
+        ).dimensions(x + 10, y + currentY, 90, 20).build();
         
         resetButton = ButtonWidget.builder(
             Text.literal("Reset to Default"),
             button -> resetToDefault()
-        ).dimensions(panelX + 110, panelY + currentY, 90, 20).build();
+        ).dimensions(x + 110, y + currentY, 90, 20).build();
         
         addWidget(applyButton);
         addWidget(resetButton);
@@ -124,12 +124,8 @@ public class FontSettingsCategory extends SettingsPanel {
         FontManager.applyFont(fontName);
         ModConfig.setSelectedFont(fontName);
         
-        // Show success message
-        if (parent.client != null && parent.client.inGameHud != null) {
-            parent.client.inGameHud.getChatHud().addMessage(
-                Text.literal("§aFont changed to: §f" + fontName)
-            );
-        }
+        // Show success message (you'll need to access MinecraftClient for this)
+        // This part would need MinecraftClient.getInstance()
     }
     
     private void resetToDefault() {
@@ -138,44 +134,38 @@ public class FontSettingsCategory extends SettingsPanel {
         customFontField.setText("");
         FontManager.resetFont();
         ModConfig.resetFont();
-        
-        if (parent.client != null && parent.client.inGameHud != null) {
-            parent.client.inGameHud.getChatHud().addMessage(
-                Text.literal("§aFont reset to default")
-            );
-        }
     }
     
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         
-        int x = panelX + 10;
-        int y = panelY + 10;
+        int panelX = x + 10;
+        int panelY = y + 10;
         
         // Draw section title
-        context.drawTextWithShadow(parent.textRenderer, 
+        context.drawTextWithShadow(parent.getTextRenderer(), 
             Text.literal("§lFont Settings"), 
-            x, y, 0xFFFFFFFF);
+            panelX, panelY, 0xFFFFFFFF);
         
-        context.drawTextWithShadow(parent.textRenderer, 
+        context.drawTextWithShadow(parent.getTextRenderer(), 
             Text.literal("Select a font style:"), 
-            x, y + 15, 0xFFAAAAAA);
+            panelX, panelY + 15, 0xFFAAAAAA);
         
         // Draw current font info
-        context.drawTextWithShadow(parent.textRenderer, 
+        context.drawTextWithShadow(parent.getTextRenderer(), 
             Text.literal("Current Font: §e" + ModConfig.getCurrentFont()), 
-            x, panelY + currentY + 10, 0xFFAAAAAA);
+            panelX, y + currentY + 10, 0xFFAAAAAA);
         
         // Show preview if custom font
         if (selectedFontIndex == availableFonts.length - 1 && !customFontField.getText().isEmpty()) {
-            context.drawTextWithShadow(parent.textRenderer, 
+            context.drawTextWithShadow(parent.getTextRenderer(), 
                 Text.literal("Preview: §a" + customFontField.getText()), 
-                x, panelY + currentY + 25, 0xFFAAAAAA);
+                panelX, y + currentY + 25, 0xFFAAAAAA);
         }
         
         // Draw separator line
-        context.fill(panelX, panelY + 55, panelX + panelWidth, panelY + 56, 0xFF444444);
+        context.fill(x, y + 55, x + width, y + 56, 0xFF444444);
     }
     
     @Override

@@ -30,6 +30,7 @@ public class FontManager {
     }
 
     public static void loadExternalFonts() {
+        if (!FONT_DIR.exists()) return;
         File[] files = FONT_DIR.listFiles((dir, name) -> name.toLowerCase().endsWith(".ttf"));
         if (files != null) {
             for (File file : files) {
@@ -42,9 +43,11 @@ public class FontManager {
     }
 
     public static Identifier getFontIdentifier() {
-        if (currentFont.equals("Default")) return Identifier.of("minecraft", "default");
-        // Minecraft 1.21.4 requires lowercase for IDs
-        String id = currentFont.toLowerCase().replace(" ", "_");
-        return Identifier.of("tclient", id);
+        if (currentFont == null || currentFont.equals("Default")) {
+            return Identifier.of("minecraft", "default");
+        }
+        // Lowercase and underscore are mandatory for Minecraft 1.21 identifiers
+        String path = currentFont.toLowerCase().replace(" ", "_");
+        return Identifier.of("tclient", path);
     }
 }

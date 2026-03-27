@@ -3,7 +3,6 @@ package com.pvppractice.client.gui.widgets;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import java.util.function.Consumer;
@@ -53,7 +52,7 @@ public class ToggleWidget extends ClickableWidget {
         if (toggled) {
             labelColor = 0x55FF55;
         }
-        context.drawText(textRenderer, label + ":", getX(), getY() + (getHeight() - 8) / 2, labelColor, false);
+        context.drawText(this.textRenderer, label + ":", getX(), getY() + (getHeight() - 8) / 2, labelColor, false);
         
         // Draw toggle switch background
         int toggleX = getX() + getWidth() - 40;
@@ -70,7 +69,6 @@ public class ToggleWidget extends ClickableWidget {
         
         // Draw slider
         int sliderWidth = toggleWidth / 2 - 2;
-        int sliderX = toggled ? toggleX + toggleWidth - sliderWidth - 2 : toggleX + 2;
         int sliderY = toggleY + 2;
         
         // Animated slider
@@ -89,10 +87,10 @@ public class ToggleWidget extends ClickableWidget {
         // Draw icon based on state
         if (toggled) {
             // Draw checkmark
-            context.drawText(textRenderer, "✓", finalSliderX + sliderWidth / 2 - 3, sliderY + 1, 0x55FF55, false);
+            context.drawText(this.textRenderer, "✓", finalSliderX + sliderWidth / 2 - 3, sliderY + 1, 0x55FF55, false);
         } else {
             // Draw X
-            context.drawText(textRenderer, "✗", finalSliderX + sliderWidth / 2 - 3, sliderY + 1, 0xFF5555, false);
+            context.drawText(this.textRenderer, "✗", finalSliderX + sliderWidth / 2 - 3, sliderY + 1, 0xFF5555, false);
         }
         
         // Draw glow effect when hovered
@@ -116,11 +114,11 @@ public class ToggleWidget extends ClickableWidget {
     
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
-        // Implement narration for accessibility
         this.appendDefaultNarrations(builder);
     }
     
-    protected boolean isMouseOver(double mouseX, double mouseY) {
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
         return mouseX >= getX() && mouseX <= getX() + getWidth() &&
                mouseY >= getY() && mouseY <= getY() + getHeight();
     }
@@ -134,7 +132,7 @@ public class ToggleWidget extends ClickableWidget {
         @Override
         protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
             boolean hovered = isHovered();
-            context.drawText(textRenderer, label, getX(), getY() + (getHeight() - 8) / 2, hovered ? 0xFFFFFF : 0xDDDDDD, false);
+            context.drawText(this.textRenderer, label, getX(), getY() + (getHeight() - 8) / 2, hovered ? 0xFFFFFF : 0xDDDDDD, false);
             
             int switchX = getX() + getWidth() - 50;
             int switchY = getY();
@@ -149,7 +147,7 @@ public class ToggleWidget extends ClickableWidget {
             // Draw text on switch
             String switchText = toggled ? "ON" : "OFF";
             int textColor = toggled ? 0x00AA00 : 0xAA0000;
-            context.drawCenteredTextWithShadow(textRenderer, switchText, switchX + switchWidth / 2, switchY + (switchHeight - 8) / 2, textColor);
+            context.drawCenteredTextWithShadow(this.textRenderer, switchText, switchX + switchWidth / 2, switchY + (switchHeight - 8) / 2, textColor);
         }
     }
     
@@ -172,7 +170,7 @@ public class ToggleWidget extends ClickableWidget {
             context.drawBorder(getX(), getY(), getWidth(), getHeight(), hovered ? 0xFFFFFF : 0xAAAAAA);
             
             String displayText = (toggled ? "✓ " : "○ ") + label;
-            context.drawCenteredTextWithShadow(textRenderer, displayText, getX() + getWidth() / 2, getY() + (getHeight() - 8) / 2, 0xFFFFFF);
+            context.drawCenteredTextWithShadow(this.textRenderer, displayText, getX() + getWidth() / 2, getY() + (getHeight() - 8) / 2, 0xFFFFFF);
         }
     }
     
@@ -195,7 +193,7 @@ public class ToggleWidget extends ClickableWidget {
             
             if (toggled) {
                 // Draw checkmark
-                context.drawText(textRenderer, "✓", checkBoxX + 2, checkBoxY + 1, 0x55FF55, false);
+                context.drawText(this.textRenderer, "✓", checkBoxX + 2, checkBoxY + 1, 0x55FF55, false);
             }
             
             // Draw label
@@ -203,7 +201,7 @@ public class ToggleWidget extends ClickableWidget {
             if (toggled) {
                 textColor = 0x55FF55;
             }
-            context.drawText(textRenderer, label, checkBoxX + checkBoxSize + 6, getY() + (getHeight() - 8) / 2, textColor, false);
+            context.drawText(this.textRenderer, label, checkBoxX + checkBoxSize + 6, getY() + (getHeight() - 8) / 2, textColor, false);
         }
         
         @Override
@@ -212,7 +210,7 @@ public class ToggleWidget extends ClickableWidget {
             int checkBoxX = getX();
             int checkBoxY = getY() + 2;
             
-            if (mouseX >= checkBoxX && mouseX <= checkBoxX + checkBoxSize + textRenderer.getWidth(label) + 10 &&
+            if (mouseX >= checkBoxX && mouseX <= checkBoxX + checkBoxSize + this.textRenderer.getWidth(label) + 10 &&
                 mouseY >= checkBoxY && mouseY <= checkBoxY + checkBoxSize) {
                 setToggled(!toggled);
                 playDownSound(MinecraftClient.getInstance().getSoundManager());

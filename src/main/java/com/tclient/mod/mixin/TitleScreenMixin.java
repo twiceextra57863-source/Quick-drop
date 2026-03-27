@@ -12,29 +12,33 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(TitleScreen.class)
 public class TitleScreenMixin {
     
-    // Method 2: Agar init nahi chalta to widgets use karo
-    @Inject(method = "initWidgets", at = @At("TAIL"))
-    private void onInitWidgets(CallbackInfo ci) {
-        addTClientButton((TitleScreen)(Object)this);
-    }
-    
-    private void addTClientButton(TitleScreen screen) {
-        int btnW = 80;
-        int btnH = 18;
-        int btnX = screen.width - btnW - 6;
-        int btnY = 6;
-
-        screen.addDrawableChild(
-            ButtonWidget.builder(
-                Text.literal("§b■ T Client"),
-                button -> {
+    // Minecraft 1.21 ka sahi method
+    @Inject(method = "init", at = @At("TAIL"))
+    private void onInit(CallbackInfo ci) {
+        try {
+            TitleScreen screen = (TitleScreen)(Object)this;
+            
+            int btnW = 80;
+            int btnH = 20;
+            int btnX = screen.width - btnW - 5;
+            int btnY = 5;
+            
+            ButtonWidget button = new ButtonWidget.Builder(
+                Text.literal("§bT Client"),
+                (buttonWidget) -> {
                     if (screen.client != null) {
                         screen.client.setScreen(new TClientScreen());
                     }
                 }
             )
-            .dimensions(btnX, btnY, btnW, btnH)
-            .build()
-        );
+            .position(btnX, btnY)
+            .size(btnW, btnH)
+            .build();
+            
+            screen.addDrawableChild(button);
+            
+        } catch (Exception e) {
+            System.out.println("TClient: Failed to add button - " + e.getMessage());
+        }
     }
 }

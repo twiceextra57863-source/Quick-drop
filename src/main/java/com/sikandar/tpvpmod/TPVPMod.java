@@ -1,10 +1,28 @@
-package com.sikandar.tpvpmod;
+package com.sikandar.tpvpmod.mixin;
 
-import net.fabricmc.api.ClientModInitializer;
+import com.sikandar.tpvpmod.TPVPDashboardScreen;
+import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.text.Text;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-public class TPVPMod implements ClientModInitializer {
-    @Override
-    public void onInitializeClient() {
-        // Ab sab mixin handle karega
+@Mixin(TitleScreen.class)
+public abstract class TitleScreenMixin extends net.minecraft.client.gui.screen.Screen {
+
+    protected TitleScreenMixin(Text title) {
+        super(title);
+    }
+
+    @Inject(method = "addNormalWidgets", at = @At("RETURN"))
+    private void addTPVPButton(int y, int spacingY, CallbackInfo ci) {
+        ButtonWidget button = ButtonWidget.builder(
+                Text.literal("§cT PVP"),
+                b -> this.client.setScreen(new TPVPDashboardScreen())
+        ).dimensions(this.width / 2 - 100, y + spacingY * 3, 200, 20).build();
+
+        this.addDrawableChild(button);
     }
 }

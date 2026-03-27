@@ -46,7 +46,35 @@ public class HeartIndicatorRenderer {
         );
         
         // Call the render method on the enum instance
-        config.heartStyle.render(context, data);
+        switch (config.heartStyle) {
+            case STATUS_BAR:
+                HeartIndicatorType.STATUS_BAR.render(context, data);
+                break;
+            case MINECRAFT_HEARTS:
+                HeartIndicatorType.MINECRAFT_HEARTS.render(context, data);
+                break;
+            case PLAYER_HEAD:
+                HeartIndicatorType.PLAYER_HEAD.render(context, data);
+                break;
+            case DIGITAL_NUMBERS:
+                HeartIndicatorType.DIGITAL_NUMBERS.render(context, data);
+                break;
+            case CIRCULAR_METER:
+                HeartIndicatorType.CIRCULAR_METER.render(context, data);
+                break;
+            case HORIZONTAL_WAVE:
+                HeartIndicatorType.HORIZONTAL_WAVE.render(context, data);
+                break;
+            case VERTICAL_STACK:
+                HeartIndicatorType.VERTICAL_STACK.render(context, data);
+                break;
+            case FLAME_EFFECT:
+                HeartIndicatorType.FLAME_EFFECT.render(context, data);
+                break;
+            case CRYSTAL_HEART:
+                HeartIndicatorType.CRYSTAL_HEART.render(context, data);
+                break;
+        }
     }
     
     private static float getScale(int size) {

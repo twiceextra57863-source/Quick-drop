@@ -1,43 +1,37 @@
 package com.yourmod.client.gui.components;
 
-import com.yourmod.client.gui.TClientScreen;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SettingsPanel extends ClickableWidget {
-    protected final TClientScreen parent;
+public class SettingsPanel {
+    protected final Screen parent;
     protected final List<ClickableWidget> widgets = new ArrayList<>();
-    protected int panelX;
-    protected int panelY;
-    protected int panelWidth;
-    protected int panelHeight;
+    protected int x;
+    protected int y;
+    protected int width;
+    protected int height;
     
-    public SettingsPanel(TClientScreen parent, int x, int y) {
-        super(x, y, parent.width - x - 20, parent.height - y - 20, Text.literal("Settings Panel"));
+    public SettingsPanel(Screen parent, int x, int y, int width, int height) {
         this.parent = parent;
-        this.panelX = x;
-        this.panelY = y;
-        this.panelWidth = parent.width - x - 20;
-        this.panelHeight = parent.height - y - 20;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
     }
     
     public void addWidget(ClickableWidget widget) {
         widgets.add(widget);
     }
     
-    public void clearWidgets() {
-        widgets.clear();
-    }
-    
-    @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         // Draw panel background
-        context.fill(panelX, panelY, panelX + panelWidth, panelY + panelHeight, 0xFF2A2A2A);
-        context.fill(panelX, panelY, panelX + panelWidth, panelY + 2, 0xFF00A8FF);
+        context.fill(x, y, x + width, y + height, 0xFF2A2A2A);
+        context.fill(x, y, x + width, y + 2, 0xFF00A8FF);
         
         // Render all widgets
         for (ClickableWidget widget : widgets) {
@@ -45,59 +39,34 @@ public class SettingsPanel extends ClickableWidget {
         }
     }
     
-    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         for (ClickableWidget widget : widgets) {
             if (widget.mouseClicked(mouseX, mouseY, button)) {
                 return true;
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return false;
     }
     
-    @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        for (ClickableWidget widget : widgets) {
-            if (widget.mouseReleased(mouseX, mouseY, button)) {
-                return true;
-            }
-        }
-        return super.mouseReleased(mouseX, mouseY, button);
-    }
-    
-    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         for (ClickableWidget widget : widgets) {
             if (widget.keyPressed(keyCode, scanCode, modifiers)) {
                 return true;
             }
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return false;
     }
     
-    @Override
     public boolean charTyped(char chr, int modifiers) {
         for (ClickableWidget widget : widgets) {
             if (widget.charTyped(chr, modifiers)) {
                 return true;
             }
         }
-        return super.charTyped(chr, modifiers);
+        return false;
     }
     
-    public int getPanelX() {
-        return panelX;
-    }
-    
-    public int getPanelY() {
-        return panelY;
-    }
-    
-    public int getPanelWidth() {
-        return panelWidth;
-    }
-    
-    public int getPanelHeight() {
-        return panelHeight;
+    public List<ClickableWidget> getWidgets() {
+        return widgets;
     }
 }

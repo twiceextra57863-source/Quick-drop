@@ -6,6 +6,7 @@ import net.fabricmc.api.ModInitializer;
 public class TClient implements ModInitializer {
     @Override
     public void onInitialize() {
-        FontManager.init(); // Font list initialize karega
+        // Folder creation and font list preparation
+        FontManager.init();
     }
 }

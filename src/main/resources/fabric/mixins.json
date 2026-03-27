@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.sikandar.tpvpmod.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [],
+  "client": [
+    "LivingEntityRendererMixin"
+  ],
+  "injectors": {
+    "maxShift": 2
+  }
+}

@@ -8,7 +8,6 @@ public class FontManager {
         try {
             MinecraftClient client = MinecraftClient.getInstance();
             TClientMod.LOGGER.info("Applying font: {}", fontName);
-            // Font implementation would go here
         } catch (Exception e) {
             TClientMod.LOGGER.error("Failed to apply font", e);
         }

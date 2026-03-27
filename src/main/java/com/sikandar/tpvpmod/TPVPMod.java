@@ -8,25 +8,28 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
 public class TPVPMod implements ClientModInitializer {
-    public static final String MOD_ID = "tpvpmod";
 
     @Override
     public void onInitializeClient() {
-        // Title screen pe T PVP button add kar rahe hai (no mixin needed, Fabric API ka ScreenEvents use kiya)
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             if (screen instanceof TitleScreen titleScreen) {
-                addTPVPButton(titleScreen, client);
+                addTPVPButton(titleScreen);
             }
         });
     }
 
-    private void addTPVPButton(TitleScreen screen, MinecraftClient client) {
-        // Button position adjust kar sakta hai (abhi Singleplayer button ke neeche)
+    private void addTPVPButton(TitleScreen screen) {
+        // Button ko title screen ke children me add karne ke liye reflection ya cast ki zarurat nahi
+        // Hum ScreenEvents ke baad init ho chuka hota hai, lekin better way ke liye mixin use karenge agar issue aaye
+        // Abhi try with this safe position (Singleplayer ke neeche adjust kiya)
         ButtonWidget tpvpButton = ButtonWidget.builder(
-                Text.literal("§cT PVP"),  // red colour for cool look
-                button -> client.setScreen(new TPVPDashboardScreen())
+                Text.literal("§cT PVP"),
+                button -> MinecraftClient.getInstance().setScreen(new TPVPDashboardScreen())
         ).dimensions(screen.width / 2 - 100, screen.height / 4 + 120, 200, 20).build();
 
-        screen.addDrawableChild(tpvpButton);
+        // Protected method ko bypass karne ke liye (1.21 me yeh common issue hai)
+        screen.children().add(tpvpButton);           // selectable
+        screen.addDrawable(tpvpButton);              // drawable
+        // Agar upar wala nahi chalta to neeche wala mixin use karna padega
     }
 }

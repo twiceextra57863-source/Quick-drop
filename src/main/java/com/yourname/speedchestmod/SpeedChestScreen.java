@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
+import net.minecraft.client.MinecraftClient;
 
 public class SpeedChestScreen extends Screen {
     private final Screen parent;
@@ -12,7 +13,7 @@ public class SpeedChestScreen extends Screen {
     private TextFieldWidget speedField;
     private ButtonWidget toggleButton;
 
-    protected SpeedChestScreen(Screen parent) {
+    public SpeedChestScreen(Screen parent) {
         super(Text.literal("Speed Chest Settings"));
         this.parent = parent;
     }
@@ -52,7 +53,6 @@ public class SpeedChestScreen extends Screen {
         addDrawableChild(ButtonWidget.builder(Text.literal("Back"), b -> close())
             .dimensions(width / 2 - 100, height / 2 + 60, 200, 20).build());
             
-        // Set focus initially to none so keyboard doesn't type immediately
         setInitialFocus(null);
     }
 
@@ -61,17 +61,18 @@ public class SpeedChestScreen extends Screen {
         renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
         
-        // Draw Labels manually here instead of adding them as children
         context.drawText(textRenderer, "Repeat Count:", width / 2 - 95, height / 2 - 30, 0xFFFFFF, true);
         context.drawText(textRenderer, "Speed (0.1 = Max):", width / 2 - 95, height / 2 + 10, 0xFFFFFF, true);
-        
-        // Draw Title
         context.drawCenteredTextWithShadow(textRenderer, title, width / 2, height / 4 - 10, 0xFFFFFF);
     }
 
     @Override
     public void close() {
-        assert client != null;
-        client.setScreen(parent);
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (parent != null) {
+            client.setScreen(parent);
+        } else {
+            client.setScreen(null);
+        }
     }
 }

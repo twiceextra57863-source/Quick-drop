@@ -17,15 +17,37 @@ public class TitleScreenMixin {
     private void onInit(CallbackInfo ci) {
         TitleScreen titleScreen = (TitleScreen)(Object)this;
         
-        // Add PVP Practice button to title screen using a different approach
+        // Create the button
         ButtonWidget pvpButton = ButtonWidget.builder(
             Text.literal("§c❤ PVP Practice"),
             button -> {
                 MinecraftClient.getInstance().setScreen(new PVPDashboardScreen());
             }
-        ).dimensions(titleScreen.width / 2 + 100, titleScreen.height / 4 + 48 + 72, 120, 20).build();
+        ).dimensions(titleScreen.width / 2 + 104, titleScreen.height / 4 + 48 + 24, 98, 20).build();
         
-        // Add the button to the screen - use the addDrawable method instead
-        titleScreen.addDrawable(pvpButton);
+        // Directly add to children list using reflection (works but less elegant)
+        try {
+            java.lang.reflect.Field childrenField = net.minecraft.client.gui.screen.Screen.class.getDeclaredField("children");
+            childrenField.setAccessible(true);
+            java.util.List<?> children = (java.util.List<?>) childrenField.get(titleScreen);
+            children.add(pvpButton);
+            
+            java.lang.reflect.Field selectablesField = net.minecraft.client.gui.screen.Screen.class.getDeclaredField("selectables");
+            selectablesField.setAccessible(true);
+            java.util.List<?> selectables = (java.util.List<?>) selectablesField.get(titleScreen);
+            selectables.add(pvpButton);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        // Also need to add to drawables
+        try {
+            java.lang.reflect.Field drawablesField = net.minecraft.client.gui.screen.Screen.class.getDeclaredField("drawables");
+            drawablesField.setAccessible(true);
+            java.util.List<?> drawables = (java.util.List<?>) drawablesField.get(titleScreen);
+            drawables.add(pvpButton);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

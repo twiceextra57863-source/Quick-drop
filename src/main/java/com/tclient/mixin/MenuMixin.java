@@ -11,16 +11,30 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin({TitleScreen.class, GameMenuScreen.class})
+@Mixin(Screen.class)
 public abstract class MenuMixin extends Screen {
-    protected MenuMixin(Text title) { super(title); }
+    protected MenuMixin(Text title) {
+        super(title);
+    }
 
     @Inject(at = @At("TAIL"), method = "init")
     private void addTClientButton(CallbackInfo info) {
-        int yPos = (this instanceof TitleScreen) ? this.height / 4 + 48 + 72 + 12 : this.height / 4 + 120;
-        
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("T Client"), button -> {
-            this.client.setScreen(new TClientScreen(this));
-        }).dimensions(this.width / 2 - 100, yPos, 200, 20).build());
+        // Casting 'this' to Object first to bypass Mixin's strict type checking
+        Object currentScreen = (Object) this;
+
+        // Check if we are on TitleScreen or GameMenuScreen
+        if (currentScreen instanceof TitleScreen || currentScreen instanceof GameMenuScreen) {
+            
+            // Positioning logic
+            int x = this.width / 2 - 100;
+            int y = (currentScreen instanceof TitleScreen) ? (this.height / 4 + 48 + 72 + 12) : (this.height / 4 + 120);
+
+            // Add T-Client Button
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("§bT-Client Settings"), button -> {
+                if (this.client != null) {
+                    this.client.setScreen(new TClientScreen(this));
+                }
+            }).dimensions(x, y, 200, 20).build());
+        }
     }
 }

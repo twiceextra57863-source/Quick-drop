@@ -12,12 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(TitleScreen.class)
 public class TitleScreenMixin {
     
-    // Method 1: init use karo
-    @Inject(method = "init", at = @At("TAIL"))
-    private void onInit(CallbackInfo ci) {
-        addTClientButton((TitleScreen)(Object)this);
-    }
-    
     // Method 2: Agar init nahi chalta to widgets use karo
     @Inject(method = "initWidgets", at = @At("TAIL"))
     private void onInitWidgets(CallbackInfo ci) {

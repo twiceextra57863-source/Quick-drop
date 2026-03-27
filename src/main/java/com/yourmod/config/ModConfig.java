@@ -20,19 +20,15 @@ public class ModConfig {
             try (FileInputStream fis = new FileInputStream(CONFIG_PATH.toFile())) {
                 properties.load(fis);
                 currentFont = properties.getProperty("selected_font", "Minecraft");
-                TClientMod.LOGGER.info("Loaded config, current font: {}", currentFont);
             } catch (IOException e) {
                 TClientMod.LOGGER.error("Failed to load config", e);
             }
-        } else {
-            TClientMod.LOGGER.info("No config file found, using defaults");
         }
     }
     
     public static void saveConfig() {
         try (FileOutputStream fos = new FileOutputStream(CONFIG_PATH.toFile())) {
             properties.store(fos, "T Client Configuration");
-            TClientMod.LOGGER.info("Config saved successfully");
         } catch (IOException e) {
             TClientMod.LOGGER.error("Failed to save config", e);
         }
@@ -46,7 +42,6 @@ public class ModConfig {
         currentFont = font;
         properties.setProperty("selected_font", font);
         saveConfig();
-        TClientMod.LOGGER.info("Font changed to: {}", font);
     }
     
     public static String getCustomFontName() {
@@ -62,6 +57,5 @@ public class ModConfig {
         setSelectedFont("Minecraft");
         properties.remove("custom_font");
         saveConfig();
-        TClientMod.LOGGER.info("Font reset to default");
     }
 }

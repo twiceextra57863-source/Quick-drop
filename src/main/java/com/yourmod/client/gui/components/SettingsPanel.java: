@@ -3,7 +3,6 @@ package com.yourmod.client.gui.components;
 import com.yourmod.client.gui.TClientScreen;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
@@ -30,11 +29,15 @@ public class SettingsPanel extends ClickableWidget {
         widgets.add(widget);
     }
     
+    public void clearWidgets() {
+        widgets.clear();
+    }
+    
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         // Draw panel background
         context.fill(panelX, panelY, panelX + panelWidth, panelY + panelHeight, 0xFF2A2A2A);
-        context.fill(panelX, panelY, panelX + panelWidth, panelY + 1, 0xFF00A8FF);
+        context.fill(panelX, panelY, panelX + panelWidth, panelY + 2, 0xFF00A8FF);
         
         // Render all widgets
         for (ClickableWidget widget : widgets) {
@@ -60,6 +63,26 @@ public class SettingsPanel extends ClickableWidget {
             }
         }
         return super.mouseReleased(mouseX, mouseY, button);
+    }
+    
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        for (ClickableWidget widget : widgets) {
+            if (widget.keyPressed(keyCode, scanCode, modifiers)) {
+                return true;
+            }
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+    
+    @Override
+    public boolean charTyped(char chr, int modifiers) {
+        for (ClickableWidget widget : widgets) {
+            if (widget.charTyped(chr, modifiers)) {
+                return true;
+            }
+        }
+        return super.charTyped(chr, modifiers);
     }
     
     public int getPanelX() {

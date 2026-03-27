@@ -36,7 +36,6 @@ public class TClientScreen extends Screen {
         
         // Initialize categories
         addCategory("Font Settings", 0);
-        // Add more categories here later
         
         // Create settings panel
         updateSettingsPanel();
@@ -49,7 +48,6 @@ public class TClientScreen extends Screen {
         categoryButtons.add(button);
         addDrawableChild(button);
         
-        // Select first category by default
         if (id == 0) {
             button.setSelected(true);
         }
@@ -58,7 +56,6 @@ public class TClientScreen extends Screen {
     private void onCategorySelected(int categoryId) {
         this.selectedCategory = categoryId;
         
-        // Update button selection state
         for (int i = 0; i < categoryButtons.size(); i++) {
             categoryButtons.get(i).setSelected(i == categoryId);
         }
@@ -68,18 +65,26 @@ public class TClientScreen extends Screen {
     
     private void updateSettingsPanel() {
         if (currentSettingsPanel != null) {
-            remove(currentSettingsPanel);
+            // Remove old widgets
+            for (var widget : currentSettingsPanel.getWidgets()) {
+                remove(widget);
+            }
         }
         
         switch (selectedCategory) {
             case 0:
-                currentSettingsPanel = new FontSettingsCategory(this, SIDEBAR_WIDTH + 20, 80);
+                currentSettingsPanel = new FontSettingsCategory(this, SIDEBAR_WIDTH + 20, 80, 
+                    width - SIDEBAR_WIDTH - 40, height - 100);
                 break;
             default:
-                currentSettingsPanel = new SettingsPanel(this, SIDEBAR_WIDTH + 20, 80);
+                currentSettingsPanel = new SettingsPanel(this, SIDEBAR_WIDTH + 20, 80,
+                    width - SIDEBAR_WIDTH - 40, height - 100);
         }
         
-        addDrawableChild(currentSettingsPanel);
+        // Add new widgets
+        for (var widget : currentSettingsPanel.getWidgets()) {
+            addDrawableChild(widget);
+        }
     }
     
     @Override
@@ -97,7 +102,6 @@ public class TClientScreen extends Screen {
         context.drawCenteredTextWithShadow(textRenderer, Text.literal("§lT CLIENT MENU"), 
             width / 2, 20, ACCENT_COLOR);
         
-        // Header subtitle
         context.drawCenteredTextWithShadow(textRenderer, Text.literal("Advanced Client Mod"), 
             width / 2, 38, 0xFF888888);
         
@@ -105,11 +109,39 @@ public class TClientScreen extends Screen {
         context.drawTextWithShadow(textRenderer, Text.literal("§lCATEGORIES"), 
             15, HEADER_HEIGHT - 20, ACCENT_COLOR);
         
-        // Sidebar separator
         context.fill(0, HEADER_HEIGHT, SIDEBAR_WIDTH, HEADER_HEIGHT + 1, ACCENT_COLOR);
         context.fill(0, HEADER_HEIGHT + 45, SIDEBAR_WIDTH, HEADER_HEIGHT + 46, 0xFF444444);
         
+        // Render current settings panel
+        if (currentSettingsPanel != null) {
+            currentSettingsPanel.render(context, mouseX, mouseY, delta);
+        }
+        
         super.render(context, mouseX, mouseY, delta);
+    }
+    
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (currentSettingsPanel != null && currentSettingsPanel.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+    
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (currentSettingsPanel != null && currentSettingsPanel.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+    
+    @Override
+    public boolean charTyped(char chr, int modifiers) {
+        if (currentSettingsPanel != null && currentSettingsPanel.charTyped(chr, modifiers)) {
+            return true;
+        }
+        return super.charTyped(chr, modifiers);
     }
     
     @Override

@@ -11,21 +11,36 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 @Mixin(TitleScreen.class)
 public class TitleScreenMixin {
     
-    // 1.21.4 mein method ka naam "init" hi hai
-    @Inject(method = "init", at = @At("TAIL"))
+    @Inject(method = "init", at = @At("RETURN"))
     private void onInit(CallbackInfo ci) {
         try {
-            TitleScreen screen = (TitleScreen)(Object)this;
+            Object screenObj = this;
+            Screen screen = (Screen) screenObj;
             
-            // Button create karo
+            // Get client using reflection
+            Field clientField = Screen.class.getDeclaredField("client");
+            clientField.setAccessible(true);
+            MinecraftClient client = (MinecraftClient) clientField.get(screen);
+            
+            if (client == null) {
+                System.out.println("TClient: Client is null, can't add button");
+                return;
+            }
+            
+            // Create button
             ButtonWidget button = ButtonWidget.builder(
                 Text.literal("§bT Client"),
                 buttonWidget -> {
-                    if (screen.client != null) {
-                        screen.client.setScreen(new TClientScreen());
+                    try {
+                        client.setScreen(new TClientScreen());
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             )
@@ -33,13 +48,21 @@ public class TitleScreenMixin {
             .size(80, 20)
             .build();
             
-            // Screen mein button add karo
-            screen.addDrawableChild(button);
+            // Add button using reflection
+            Method addMethod = Screen.class.getDeclaredMethod("addDrawableChild", net.minecraft.client.gui.Element.class);
+            addMethod.setAccessible(true);
+            addMethod.invoke(screen, button);
             
-            System.out.println("TClient: Button added successfully in 1.21.4!");
+            System.out.println("TClient: Button added successfully!");
             
+        } catch (NoSuchFieldException e) {
+            System.err.println("TClient: Field not found - " + e.getMessage());
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            System.err.println("TClient: Method not found - " + e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
-            System.err.println("TClient Error: " + e.getMessage());
+            System.err.println("TClient: Unexpected error - " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -104,7 +104,7 @@ jobs:
           files: |
             build/libs/*.jar
             !build/libs/*-sources.jar
-          name: "QuickChest ${{ github.ref_name }}"
+          name: "Tclient ${{ github.ref_name }}"
           body: |
             ## QuickChest Mod ${{ github.ref_name }}
             **Minecraft:** 1.21.4 | **Loader:** Fabric

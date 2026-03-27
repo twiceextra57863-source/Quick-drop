@@ -2,15 +2,9 @@ package com.pvppractice.client.render;
 
 import com.pvppractice.config.PVPConfig;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import java.util.List;
 
 public class HeartIndicatorRenderer {
@@ -51,6 +45,7 @@ public class HeartIndicatorRenderer {
             config.healthBarColor.getColor(), width, height, entity
         );
         
+        // Call the render method on the enum instance
         config.heartStyle.render(context, data);
     }
     

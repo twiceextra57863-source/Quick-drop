@@ -20,21 +20,20 @@ public class TitleScreenMixin {
     @Inject(method = "init", at = @At("RETURN"))
     private void onInit(CallbackInfo ci) {
         try {
-            Object screenObj = this;
-            Screen screen = (Screen) screenObj;
+            TitleScreen screen = (TitleScreen)(Object)this;
             
-            // Get client using reflection
             Field clientField = Screen.class.getDeclaredField("client");
             clientField.setAccessible(true);
             MinecraftClient client = (MinecraftClient) clientField.get(screen);
             
-            if (client == null) {
-                System.out.println("TClient: Client is null, can't add button");
-                return;
-            }
+            if (client == null) return;
             
-            // Create button
-            ButtonWidget button = ButtonWidget.builder(
+            // Button position - Single Player ke right side
+            // Single Player button is usually at: (width/2 - 100, height/2 - 48)
+            int buttonX = (screen.width / 2) + 5;      // Single Player ke right side
+            int buttonY = (screen.height / 2) - 48;    // Same Y as Single Player
+            
+            ButtonWidget tclientButton = ButtonWidget.builder(
                 Text.literal("§bT Client"),
                 buttonWidget -> {
                     try {
@@ -44,25 +43,17 @@ public class TitleScreenMixin {
                     }
                 }
             )
-            .position(screen.width - 85, 5)
-            .size(80, 20)
+            .position(buttonX, buttonY)
+            .size(90, 20)
             .build();
             
-            // Add button using reflection
             Method addMethod = Screen.class.getDeclaredMethod("addDrawableChild", net.minecraft.client.gui.Element.class);
             addMethod.setAccessible(true);
-            addMethod.invoke(screen, button);
+            addMethod.invoke(screen, tclientButton);
             
-            System.out.println("TClient: Button added successfully!");
+            System.out.println("TClient: Button added!");
             
-        } catch (NoSuchFieldException e) {
-            System.err.println("TClient: Field not found - " + e.getMessage());
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            System.err.println("TClient: Method not found - " + e.getMessage());
-            e.printStackTrace();
         } catch (Exception e) {
-            System.err.println("TClient: Unexpected error - " + e.getMessage());
             e.printStackTrace();
         }
     }

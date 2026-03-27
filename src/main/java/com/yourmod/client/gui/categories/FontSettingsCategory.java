@@ -71,13 +71,10 @@ public class FontSettingsCategory extends SettingsPanel {
         addWidget(applyButton);
         addWidget(resetButton);
         
-        currentY += 40;
-        
         // Set initial selected font
         String currentFont = ModConfig.getCurrentFont();
         for (int i = 0; i < availableFonts.length; i++) {
-            if (availableFonts[i].equalsIgnoreCase(currentFont) || 
-                (i == availableFonts.length - 1 && currentFont.equals(ModConfig.getCustomFontName()))) {
+            if (availableFonts[i].equalsIgnoreCase(currentFont)) {
                 selectedFontIndex = i;
                 break;
             }
@@ -89,7 +86,6 @@ public class FontSettingsCategory extends SettingsPanel {
         selectedFontIndex = index;
         updateButtonVisuals();
         
-        // If custom font is selected, focus on the text field
         if (selectedFontIndex == availableFonts.length - 1) {
             customFontField.setFocused(true);
         }
@@ -110,7 +106,6 @@ public class FontSettingsCategory extends SettingsPanel {
         String fontName;
         
         if (selectedFontIndex == availableFonts.length - 1) {
-            // Custom font selected
             fontName = customFontField.getText();
             if (fontName.isEmpty()) {
                 fontName = "Minecraft";
@@ -120,12 +115,8 @@ public class FontSettingsCategory extends SettingsPanel {
             fontName = availableFonts[selectedFontIndex];
         }
         
-        // Apply the font
         FontManager.applyFont(fontName);
         ModConfig.setSelectedFont(fontName);
-        
-        // Show success message (you'll need to access MinecraftClient for this)
-        // This part would need MinecraftClient.getInstance()
     }
     
     private void resetToDefault() {
@@ -143,7 +134,6 @@ public class FontSettingsCategory extends SettingsPanel {
         int panelX = x + 10;
         int panelY = y + 10;
         
-        // Draw section title
         context.drawTextWithShadow(parent.getTextRenderer(), 
             Text.literal("§lFont Settings"), 
             panelX, panelY, 0xFFFFFFFF);
@@ -152,30 +142,19 @@ public class FontSettingsCategory extends SettingsPanel {
             Text.literal("Select a font style:"), 
             panelX, panelY + 15, 0xFFAAAAAA);
         
-        // Draw current font info
         context.drawTextWithShadow(parent.getTextRenderer(), 
             Text.literal("Current Font: §e" + ModConfig.getCurrentFont()), 
-            panelX, y + currentY + 10, 0xFFAAAAAA);
+            panelX, y + currentY + 30, 0xFFAAAAAA);
         
-        // Show preview if custom font
-        if (selectedFontIndex == availableFonts.length - 1 && !customFontField.getText().isEmpty()) {
-            context.drawTextWithShadow(parent.getTextRenderer(), 
-                Text.literal("Preview: §a" + customFontField.getText()), 
-                panelX, y + currentY + 25, 0xFFAAAAAA);
-        }
-        
-        // Draw separator line
         context.fill(x, y + 55, x + width, y + 56, 0xFF444444);
     }
     
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // Handle custom font field click
         if (customFontField.mouseClicked(mouseX, mouseY, button)) {
             return true;
         }
         
-        // Handle button clicks
         for (ButtonWidget fontButton : fontButtons) {
             if (fontButton.mouseClicked(mouseX, mouseY, button)) {
                 return true;

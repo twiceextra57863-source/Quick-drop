@@ -2,6 +2,7 @@ package com.pvppractice.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.pvppractice.client.render.HeartIndicatorType;
 import net.fabricmc.loader.api.FabricLoader;
 import java.io.*;
 import java.nio.file.Path;
@@ -14,30 +15,12 @@ public class PVPConfig {
     
     // Heart Indicator Settings
     public boolean heartIndicatorEnabled = true;
-    public HeartStyle heartStyle = HeartStyle.MINECRAFT_HEARTS;
+    public HeartIndicatorType heartStyle = HeartIndicatorType.MINECRAFT_HEARTS;
     public boolean showHealthNumbers = true;
     public HealthBarColor healthBarColor = HealthBarColor.RED;
     public int indicatorSize = 2; // 1=Small, 2=Medium, 3=Large
     public int indicatorXOffset = 0;
     public int indicatorYOffset = 0;
-    
-    public enum HeartStyle {
-        STATUS_BAR("Status Bar"),
-        MINECRAFT_HEARTS("Minecraft Hearts"),
-        PLAYER_HEAD("Player Head"),
-        DIGITAL_NUMBERS("Digital Numbers"),
-        CIRCULAR_METER("Circular Meter");
-        
-        private final String displayName;
-        
-        HeartStyle(String displayName) {
-            this.displayName = displayName;
-        }
-        
-        public String getDisplayName() {
-            return displayName;
-        }
-    }
     
     public enum HealthBarColor {
         RED("Red", 0xFF5555),

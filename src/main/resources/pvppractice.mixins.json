@@ -5,11 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "pvppractice-refmap.json",
   "client": [
-    "client.MinecraftClientMixin",
-    "client.InGameHudMixin",
-    "client.EntityRenderDispatcherMixin",
-    "client.TitleScreenMixin",
-    "client.GameRendererMixin"
+    "client.TitleScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -10,65 +10,37 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 @Mixin(TitleScreen.class)
 public class TitleScreenMixin {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger("TClient");
-    
-    // Try init method
+    // 1.21.4 mein method ka naam "init" hi hai
     @Inject(method = "init", at = @At("TAIL"))
-    private void onInitTail(CallbackInfo ci) {
-        addCustomButton();
-    }
-    
-    // Try widgets method
-    @Inject(method = "initWidgets", at = @At("TAIL"))
-    private void onInitWidgets(CallbackInfo ci) {
-        addCustomButton();
-    }
-    
-    private void addCustomButton() {
+    private void onInit(CallbackInfo ci) {
         try {
-            Screen screen = (Screen)(Object)this;
-            LOGGER.info("TClient: Adding button - Screen: {}", screen.getClass().getSimpleName());
+            TitleScreen screen = (TitleScreen)(Object)this;
             
-            int btnW = 80;
-            int btnH = 20;
-            int btnX = screen.width - btnW - 5;
-            int btnY = 5;
-            
+            // Button create karo
             ButtonWidget button = ButtonWidget.builder(
-                Text.literal("§bTC"),
+                Text.literal("§bT Client"),
                 buttonWidget -> {
-                    try {
-                        Field clientField = Screen.class.getDeclaredField("client");
-                        clientField.setAccessible(true);
-                        MinecraftClient client = (MinecraftClient) clientField.get(screen);
-                        if (client != null) {
-                            client.setScreen(new TClientScreen());
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if (screen.client != null) {
+                        screen.client.setScreen(new TClientScreen());
                     }
                 }
             )
-            .dimensions(btnX, btnY, btnW, btnH)
+            .position(screen.width - 85, 5)
+            .size(80, 20)
             .build();
             
-            Method addDrawableChild = Screen.class.getDeclaredMethod("addDrawableChild", net.minecraft.client.gui.Element.class);
-            addDrawableChild.setAccessible(true);
-            addDrawableChild.invoke(screen, button);
+            // Screen mein button add karo
+            screen.addDrawableChild(button);
             
-            LOGGER.info("TClient: Button added at position {},{}", btnX, btnY);
+            System.out.println("TClient: Button added successfully in 1.21.4!");
             
         } catch (Exception e) {
-            LOGGER.error("TClient: Failed to add button", e);
+            System.err.println("TClient Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

@@ -1,10 +1,9 @@
 {
   "required": true,
-  "package": "com.quickchest.mixin",
+  "package": "com.yourname.dupemod.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "DupeNetworkMixin",
-    "GameMenuMixin"
+    "GameMenuScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

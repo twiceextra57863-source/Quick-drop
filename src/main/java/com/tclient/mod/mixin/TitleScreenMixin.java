@@ -10,24 +10,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(TitleScreen.class)
-public class TitleScreenMixin extends net.minecraft.client.gui.screen.Screen {
-
-    protected TitleScreenMixin() {
-        super(Text.literal("Title Screen"));
-    }
-
-    // "init" nahi — "initWidgetsNormal" use karo 1.21 mein
-    @Inject(method = "initWidgetsNormal", at = @At("TAIL"))
-    private void onInitWidgetsNormal(CallbackInfo ci) {
+public class TitleScreenMixin {
+    
+    // Minecraft 1.21 mein init method use hota hai
+    @Inject(method = "init", at = @At("TAIL"))
+    private void onInit(CallbackInfo ci) {
+        TitleScreen screen = (TitleScreen)(Object)this;
+        
         int btnW = 80;
         int btnH = 18;
-        int btnX = this.width - btnW - 6;
+        int btnX = screen.width - btnW - 6;
         int btnY = 6;
 
-        this.addDrawableChild(
+        screen.addDrawableChild(
             ButtonWidget.builder(
                 Text.literal("§b■ T Client"),
-                button -> this.client.setScreen(new TClientScreen())
+                button -> {
+                    if (screen.client != null) {
+                        screen.client.setScreen(new TClientScreen());
+                    }
+                }
             )
             .dimensions(btnX, btnY, btnW, btnH)
             .build()

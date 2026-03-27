@@ -1,37 +1,24 @@
 package com.tclient.mixin;
 
 import com.tclient.font.FontManager;
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.font.FontManager; // Minecraft's FontManager
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(TextRenderer.class)
+@Mixin(net.minecraft.client.font.FontManager.class)
 public class FontMixin {
 
-    // Hum 'draw' method ke andar jo font ID pass hoti hai, usse raste mein hi badal denge
-    @ModifyArg(
-        method = "draw(Lnet/minecraft/text/OrderedText;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;drawInternal(Lnet/minecraft/text/OrderedText;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I"),
-        index = 0 // OrderedText argument ko target kar rahe hain
-    )
-    private Identifier injectCustomFont(Identifier original) {
-        if (FontManager.currentFont != null && !FontManager.currentFont.equals("Default")) {
-            return FontManager.getFontIdentifier();
+    // Minecraft jab font list dhoondta hai, hum wahi par apna custom ID ghusa denge
+    @ModifyVariable(method = "method_27539", at = @At("HEAD"), argsOnly = true, remap = false)
+    private Identifier changeFontOnLoad(Identifier id) {
+        if (com.tclient.font.FontManager.currentFont != null && !com.tclient.font.FontManager.currentFont.equals("Default")) {
+            // Agar T-Client mein font selected hai toh default font ko replace kar do
+            if (id.getNamespace().equals("minecraft") && id.getPath().equals("default")) {
+                return com.tclient.font.FontManager.getFontIdentifier();
+            }
         }
-        return original;
-    }
-
-    @ModifyArg(
-        method = "draw(Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;drawInternal(Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I"),
-        index = 0 // String argument ko target kar rahe hain
-    )
-    private Identifier injectCustomFontString(Identifier original) {
-        if (FontManager.currentFont != null && !FontManager.currentFont.equals("Default")) {
-            return FontManager.getFontIdentifier();
-        }
-        return original;
+        return id;
     }
 }

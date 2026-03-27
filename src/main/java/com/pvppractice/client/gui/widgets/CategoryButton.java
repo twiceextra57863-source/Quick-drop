@@ -3,10 +3,9 @@ package com.pvppractice.client.gui.widgets;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.MinecraftClient;
 
 public class CategoryButton extends ButtonWidget {
-    private static final Identifier WIDGETS_TEXTURE = Identifier.of("pvppractice", "textures/gui/widgets.png");
     private final CategoryType categoryType;
     private boolean selected;
     private float hoverAnimation = 0;
@@ -88,11 +87,11 @@ public class CategoryButton extends ButtonWidget {
         
         // Draw icon (using Unicode characters with color)
         String icon = categoryType.getDisplayName().substring(0, 2);
-        context.drawTextWithShadow(textRenderer, icon, getX() + 8, getY() + (getHeight() - 8) / 2, textColor);
+        context.drawText(textRenderer, icon, getX() + 8, getY() + (getHeight() - 8) / 2, textColor, false);
         
         // Draw text with shadow
         String displayText = categoryType.getDisplayName().substring(2);
-        context.drawTextWithShadow(textRenderer, displayText, getX() + 24, getY() + (getHeight() - 8) / 2, textColor);
+        context.drawText(textRenderer, displayText, getX() + 24, getY() + (getHeight() - 8) / 2, textColor, false);
         
         // Draw selection indicator if selected
         if (selected) {
@@ -111,15 +110,10 @@ public class CategoryButton extends ButtonWidget {
     
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (this.active && this.visible && isMouseOver(mouseX, mouseY)) {
+        if (this.active && this.visible && this.isMouseOver(mouseX, mouseY)) {
             this.onPress();
             return true;
         }
         return false;
-    }
-    
-    private boolean isMouseOver(double mouseX, double mouseY) {
-        return mouseX >= getX() && mouseX <= getX() + getWidth() &&
-               mouseY >= getY() && mouseY <= getY() + getHeight();
     }
 }

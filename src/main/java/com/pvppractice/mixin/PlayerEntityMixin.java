@@ -27,16 +27,6 @@ public class PlayerEntityMixin {
         }
     }
     
-    @Inject(method = "heal", at = @At(value = "HEAD"))
-    private void onHeal(float amount, CallbackInfo ci) {
-        // Track healing for statistics
-        PlayerEntity player = (PlayerEntity)(Object)this;
-        
-        if (player.getWorld().isClient()) {
-            // Client-side healing effects
-        }
-    }
-    
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void onTick(CallbackInfo ci) {
         // Player tick logic
@@ -47,18 +37,6 @@ public class PlayerEntityMixin {
             if (player.getHealth() <= player.getMaxHealth() * 0.2f) {
                 // Low health effects
             }
-        }
-    }
-    
-    @Inject(method = "getAttackCooldownProgress", at = @At(value = "RETURN"), cancellable = true)
-    private void onGetAttackCooldownProgress(float baseTime, CallbackInfoReturnable<Float> cir) {
-        // Modify attack cooldown display for PVP practice
-        // Could add visual feedback for perfect timing
-        float original = cir.getReturnValue();
-        
-        if (original > 0.9f) {
-            // Perfect timing effect
-            cir.setReturnValue(original + 0.05f);
         }
     }
 }

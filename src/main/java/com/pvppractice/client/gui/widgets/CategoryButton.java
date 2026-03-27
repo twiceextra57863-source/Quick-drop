@@ -1,9 +1,9 @@
 package com.pvppractice.client.gui.widgets;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import net.minecraft.client.MinecraftClient;
 
 public class CategoryButton extends ButtonWidget {
     private final CategoryType categoryType;
@@ -48,7 +48,7 @@ public class CategoryButton extends ButtonWidget {
     }
     
     @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         // Update hover animation
         if (isHovered()) {
             hoverAnimation = Math.min(1.0f, hoverAnimation + delta * 0.1f);
@@ -87,11 +87,11 @@ public class CategoryButton extends ButtonWidget {
         
         // Draw icon (using Unicode characters with color)
         String icon = categoryType.getDisplayName().substring(0, 2);
-        context.drawText(textRenderer, icon, getX() + 8, getY() + (getHeight() - 8) / 2, textColor, false);
+        context.drawText(this.textRenderer, icon, getX() + 8, getY() + (getHeight() - 8) / 2, textColor, false);
         
         // Draw text with shadow
         String displayText = categoryType.getDisplayName().substring(2);
-        context.drawText(textRenderer, displayText, getX() + 24, getY() + (getHeight() - 8) / 2, textColor, false);
+        context.drawText(this.textRenderer, displayText, getX() + 24, getY() + (getHeight() - 8) / 2, textColor, false);
         
         // Draw selection indicator if selected
         if (selected) {

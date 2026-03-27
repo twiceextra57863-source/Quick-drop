@@ -16,18 +16,17 @@ public class TClientScreen extends Screen {
     private static final int SIDEBAR_ITEM_H = 26;
     private static final int PADDING        = 8;
 
-    // Opacity Fix: 'FF' ensures solid colors
     private static final int BG_DARK        = 0xFF0A0A0F;
     private static final int BG_PANEL       = 0xFF0F0F1A;
     private static final int BG_SIDEBAR     = 0xFF080812;
     private static final int ACCENT         = 0xFF00E5FF;
-    private static final int ACCENT_DIM     = 0x8800E5FF; // Higher alpha for visibility
+    private static final int ACCENT_DIM     = 0x4400E5FF;
     private static final int TEXT_PRIMARY   = 0xFFECECEC;
     private static final int TEXT_SECONDARY = 0xFF7A7A9A;
     private static final int TEXT_ACCENT    = 0xFF00E5FF;
     private static final int TEXT_MUTED     = 0xFF3A3A5A;
-    private static final int SIDEBAR_HOVER  = 0x2200E5FF; // Visible hover
-    private static final int SIDEBAR_ACTIVE = 0x4400E5FF; // Visible active
+    private static final int SIDEBAR_HOVER  = 0x1500E5FF;
+    private static final int SIDEBAR_ACTIVE = 0x2A00E5FF;
 
     private int selectedCategory = 0;
     private final List<CategoryEntry> categories = new ArrayList<>();
@@ -52,57 +51,31 @@ public class TClientScreen extends Screen {
         categories.add(new CategoryEntry("MISC",     "⚙", "Misc"));
 
         panels.add(new FontChangerPanel(this));
-        
-        // PVP Settings Panel for Combat category
-        try {
-            panels.add(new PVPSettingsPanel(this));
-        } catch (Exception e) {
-            System.err.println("Failed to load PVPSettingsPanel: " + e.getMessage());
-            panels.add(new ComingSoonPanel("PVP Settings - Coming Soon"));
-        }
-        
+        panels.add(new ComingSoonPanel("Combat features coming soon..."));
         panels.add(new ComingSoonPanel("Movement features coming soon..."));
         panels.add(new ComingSoonPanel("Player features coming soon..."));
         panels.add(new ComingSoonPanel("World features coming soon..."));
         panels.add(new ComingSoonPanel("HUD features coming soon..."));
         panels.add(new ComingSoonPanel("Misc features coming soon..."));
 
-        for (TClientPanel p : panels) {
-            try {
-                p.init(client, width, height, SIDEBAR_WIDTH, HEADER_HEIGHT, FOOTER_HEIGHT);
-            } catch (Exception e) {
-                System.err.println("Failed to init panel: " + e.getMessage());
-            }
-        }
+        for (TClientPanel p : panels)
+            p.init(client, width, height, SIDEBAR_WIDTH, HEADER_HEIGHT, FOOTER_HEIGHT);
     }
 
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        // Fix: Render solid background first to prevent Title Screen from showing through
+        renderBackground(ctx, mouseX, mouseY, delta);
         ctx.fill(0, 0, width, height, BG_DARK);
-        
-        // 1.21.4 requirement: call super render background if needed for dirt/blur
-        super.renderBackground(ctx, mouseX, mouseY, delta);
-
-        // Dashboard base layers
         ctx.fill(0, 0, width, 1, ACCENT_DIM);
+
         drawHeader(ctx, width);
         drawSidebar(ctx, mouseX, mouseY, height);
 
-        // Sidebar separator line
         ctx.fill(SIDEBAR_WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH + 1, height - FOOTER_HEIGHT, ACCENT_DIM);
 
-        // Content Panels
-        if (selectedCategory >= 0 && selectedCategory < panels.size()) {
-            try {
-                panels.get(selectedCategory).render(ctx, mouseX, mouseY, delta,
-                        SIDEBAR_WIDTH + 1, HEADER_HEIGHT, width, height - FOOTER_HEIGHT);
-            } catch (Exception e) {
-                // Fallback render if panel fails
-                ctx.drawText(textRenderer, "§cError loading panel: " + e.getMessage(), 
-                    SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 50, 0xFF5555, false);
-            }
-        }
+        if (selectedCategory >= 0 && selectedCategory < panels.size())
+            panels.get(selectedCategory).render(ctx, mouseX, mouseY, delta,
+                    SIDEBAR_WIDTH + 1, HEADER_HEIGHT, width, height - FOOTER_HEIGHT);
 
         drawFooter(ctx, width, height);
         super.render(ctx, mouseX, mouseY, delta);
@@ -119,8 +92,7 @@ public class TClientScreen extends Screen {
 
         if (selectedCategory >= 0 && selectedCategory < categories.size()) {
             String cat = "/ " + categories.get(selectedCategory).label;
-            // Corrected X calculation for header centering
-            ctx.drawText(textRenderer, cat, SIDEBAR_WIDTH + 10, ly, TEXT_ACCENT, false);
+            ctx.drawText(textRenderer, cat, (sw - textRenderer.getWidth(cat)) / 2, ly, TEXT_ACCENT, false);
         }
         String ver = "v1.0";
         ctx.drawText(textRenderer, ver, sw - textRenderer.getWidth(ver) - 10, ly, TEXT_SECONDARY, false);
@@ -130,7 +102,7 @@ public class TClientScreen extends Screen {
         ctx.fill(0, HEADER_HEIGHT, SIDEBAR_WIDTH, sh - FOOTER_HEIGHT, BG_SIDEBAR);
         ctx.drawText(textRenderer, "MODULES", PADDING, HEADER_HEIGHT + 8, TEXT_MUTED, false);
 
-        int startY = HEADER_HEIGHT + 24; // Small offset fix
+        int startY = HEADER_HEIGHT + 20;
         for (int i = 0; i < categories.size(); i++) {
             CategoryEntry cat = categories.get(i);
             int itemY = startY + i * SIDEBAR_ITEM_H;
@@ -149,7 +121,7 @@ public class TClientScreen extends Screen {
             ctx.drawText(textRenderer, cat.icon, PADDING + 2, itemY + (SIDEBAR_ITEM_H - 8) / 2, color, false);
             ctx.drawText(textRenderer, cat.label, PADDING + 14, itemY + (SIDEBAR_ITEM_H - 8) / 2, color, false);
             ctx.fill(PADDING, itemY + SIDEBAR_ITEM_H - 1, SIDEBAR_WIDTH - PADDING,
-                    itemY + SIDEBAR_ITEM_H, 0x1AFFFFFF); // Muted separator
+                    itemY + SIDEBAR_ITEM_H, TEXT_MUTED);
         }
     }
 
@@ -166,7 +138,7 @@ public class TClientScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int startY = HEADER_HEIGHT + 24;
+        int startY = HEADER_HEIGHT + 20;
         for (int i = 0; i < categories.size(); i++) {
             int itemY = startY + i * SIDEBAR_ITEM_H;
             if (mouseX >= 0 && mouseX < SIDEBAR_WIDTH
@@ -175,26 +147,16 @@ public class TClientScreen extends Screen {
                 return true;
             }
         }
-        if (selectedCategory >= 0 && selectedCategory < panels.size()) {
-            try {
-                panels.get(selectedCategory).mouseClicked(mouseX, mouseY, button,
-                        SIDEBAR_WIDTH + 1, HEADER_HEIGHT, width, height - FOOTER_HEIGHT);
-            } catch (Exception e) {
-                System.err.println("Error in panel mouseClicked: " + e.getMessage());
-            }
-        }
+        if (selectedCategory >= 0 && selectedCategory < panels.size())
+            panels.get(selectedCategory).mouseClicked(mouseX, mouseY, button,
+                    SIDEBAR_WIDTH + 1, HEADER_HEIGHT, width, height - FOOTER_HEIGHT);
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double h, double v) {
-        if (selectedCategory >= 0 && selectedCategory < panels.size()) {
-            try {
-                panels.get(selectedCategory).mouseScrolled(mouseX, mouseY, v);
-            } catch (Exception e) {
-                System.err.println("Error in panel mouseScrolled: " + e.getMessage());
-            }
-        }
+        if (selectedCategory >= 0 && selectedCategory < panels.size())
+            panels.get(selectedCategory).mouseScrolled(mouseX, mouseY, v);
         return super.mouseScrolled(mouseX, mouseY, h, v);
     }
 
@@ -207,4 +169,4 @@ public class TClientScreen extends Screen {
             this.id = id; this.icon = icon; this.label = label;
         }
     }
-                     }
+}

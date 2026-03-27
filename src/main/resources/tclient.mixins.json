@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.tclient.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "TitleScreenMixin",
+    "GameMenuMixin",
+    "FontMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
+

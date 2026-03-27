@@ -16,12 +16,9 @@ public class TClientScreen extends Screen {
     private SettingsPanel currentSettingsPanel;
     private int selectedCategory = 0;
     
-    // Colors
     private static final int BACKGROUND_COLOR = 0xFF1A1A1A;
     private static final int SIDEBAR_COLOR = 0xFF2D2D2D;
     private static final int ACCENT_COLOR = 0xFF00A8FF;
-    
-    // Dimensions
     private static final int SIDEBAR_WIDTH = 180;
     private static final int HEADER_HEIGHT = 60;
     
@@ -34,10 +31,8 @@ public class TClientScreen extends Screen {
     protected void init() {
         categoryButtons = new ArrayList<>();
         
-        // Initialize categories
         addCategory("Font Settings", 0);
         
-        // Create settings panel
         updateSettingsPanel();
     }
     
@@ -65,23 +60,19 @@ public class TClientScreen extends Screen {
     
     private void updateSettingsPanel() {
         if (currentSettingsPanel != null) {
-            // Remove old widgets
             for (var widget : currentSettingsPanel.getWidgets()) {
                 remove(widget);
             }
         }
         
-        switch (selectedCategory) {
-            case 0:
-                currentSettingsPanel = new FontSettingsCategory(this, SIDEBAR_WIDTH + 20, 80, 
-                    width - SIDEBAR_WIDTH - 40, height - 100);
-                break;
-            default:
-                currentSettingsPanel = new SettingsPanel(this, SIDEBAR_WIDTH + 20, 80,
-                    width - SIDEBAR_WIDTH - 40, height - 100);
+        if (selectedCategory == 0) {
+            currentSettingsPanel = new FontSettingsCategory(this, SIDEBAR_WIDTH + 20, 80, 
+                width - SIDEBAR_WIDTH - 40, height - 100);
+        } else {
+            currentSettingsPanel = new SettingsPanel(this, SIDEBAR_WIDTH + 20, 80,
+                width - SIDEBAR_WIDTH - 40, height - 100);
         }
         
-        // Add new widgets
         for (var widget : currentSettingsPanel.getWidgets()) {
             addDrawableChild(widget);
         }
@@ -89,30 +80,20 @@ public class TClientScreen extends Screen {
     
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // Background
         context.fill(0, 0, width, height, BACKGROUND_COLOR);
-        
-        // Sidebar
         context.fill(0, 0, SIDEBAR_WIDTH, height, SIDEBAR_COLOR);
-        
-        // Header
         context.fill(0, 0, width, HEADER_HEIGHT, 0xFF000000);
         
-        // Header title
         context.drawCenteredTextWithShadow(textRenderer, Text.literal("§lT CLIENT MENU"), 
             width / 2, 20, ACCENT_COLOR);
-        
         context.drawCenteredTextWithShadow(textRenderer, Text.literal("Advanced Client Mod"), 
             width / 2, 38, 0xFF888888);
-        
-        // Sidebar title
         context.drawTextWithShadow(textRenderer, Text.literal("§lCATEGORIES"), 
             15, HEADER_HEIGHT - 20, ACCENT_COLOR);
         
         context.fill(0, HEADER_HEIGHT, SIDEBAR_WIDTH, HEADER_HEIGHT + 1, ACCENT_COLOR);
         context.fill(0, HEADER_HEIGHT + 45, SIDEBAR_WIDTH, HEADER_HEIGHT + 46, 0xFF444444);
         
-        // Render current settings panel
         if (currentSettingsPanel != null) {
             currentSettingsPanel.render(context, mouseX, mouseY, delta);
         }

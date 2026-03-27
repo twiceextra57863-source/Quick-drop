@@ -11,27 +11,22 @@ public class FontManager {
     public static final List<String> availableFonts = new ArrayList<>();
     private static final File FONT_DIR = new File(FabricLoader.getInstance().getConfigDir().toFile(), "T-Client/fonts");
 
-    static {
-        // Default Fonts List
-        availableFonts.add("Default");
-        availableFonts.add("Modern");
-        availableFonts.add("Smooth");
-        availableFonts.add("Minecraftia");
-        availableFonts.add("Roboto");
-        availableFonts.add("Arial");
-        availableFonts.add("Impact");
-        availableFonts.add("Verdana");
-        availableFonts.add("ComicSans");
-        availableFonts.add("Pixel-Pro");
-        availableFonts.add("Ghost");
-        
-        // Create folder if not exists
-        if (!FONT_DIR.exists()) {
-            FONT_DIR.mkdirs();
+    public static void init() {
+        if (availableFonts.isEmpty()) {
+            availableFonts.add("Default");
+            availableFonts.add("Modern");
+            availableFonts.add("Smooth");
+            availableFonts.add("Minecraftia");
+            availableFonts.add("Roboto");
+            availableFonts.add("Arial");
+            availableFonts.add("Impact");
+            availableFonts.add("Verdana");
+            availableFonts.add("ComicSans");
+            availableFonts.add("Pixel-Pro");
+            
+            if (!FONT_DIR.exists()) FONT_DIR.mkdirs();
+            loadExternalFonts();
         }
-        
-        // Scan for external .ttf files
-        loadExternalFonts();
     }
 
     public static void loadExternalFonts() {
@@ -40,7 +35,7 @@ public class FontManager {
             for (File file : files) {
                 String name = file.getName().replace(".ttf", "");
                 if (!availableFonts.contains(name)) {
-                    availableFonts.add("[Custom] " + name);
+                    availableFonts.add(name);
                 }
             }
         }
@@ -48,9 +43,8 @@ public class FontManager {
 
     public static Identifier getFontIdentifier() {
         if (currentFont.equals("Default")) return Identifier.of("minecraft", "default");
-        
-        // Convert name to lowercase for Identifier (Minecraft requirement)
-        String fontId = currentFont.toLowerCase().replace(" ", "_").replace("[custom]_", "");
-        return Identifier.of("tclient", fontId);
+        // Minecraft 1.21.4 requires lowercase for IDs
+        String id = currentFont.toLowerCase().replace(" ", "_");
+        return Identifier.of("tclient", id);
     }
 }

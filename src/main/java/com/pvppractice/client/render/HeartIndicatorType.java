@@ -245,7 +245,6 @@ public enum HeartIndicatorType {
             if (progress <= percent) {
                 float waveHeight = (float)(Math.sin(progress * Math.PI * 2 + waveOffset) * 0.3f + 0.5f);
                 int waveY = y + (int)(height * (1 - waveHeight * 0.8f));
-                int fillHeight = y + height - waveY;
                 
                 // Gradient based on position
                 int gradientColor = getGradientColor(color, progress);

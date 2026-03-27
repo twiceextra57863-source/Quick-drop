@@ -4,7 +4,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.MathHelper;
 import java.awt.Color;
 import java.util.function.BiConsumer;
 
@@ -95,7 +94,6 @@ public enum HeartIndicatorType {
         // Draw health ring with animation
         int ringWidth = (int)(size * percent);
         for (int i = 0; i < ringWidth; i++) {
-            float angle = (float) i / ringWidth * 360;
             int ringX = x - size/2 + i;
             int ringY = y - size/2;
             context.fill(ringX, ringY, ringX + 1, ringY + 2, color);
@@ -129,8 +127,6 @@ public enum HeartIndicatorType {
         String healthText = String.format("%.0f", health);
         String maxText = String.format("%.0f", maxHealth);
         
-        int fontSize = 18;
-        
         // Draw background with blur effect
         context.fill(x - 32, y - 12, x + 32, y + 10, 0xAA000000);
         context.drawBorder(x - 32, y - 12, 64, 22, 0xFFFFFFFF);
@@ -138,18 +134,18 @@ public enum HeartIndicatorType {
         // Main health number with glow
         int glowSize = 2;
         for (int i = 0; i < glowSize; i++) {
-            context.drawTextWithShadow(textRenderer, healthText, x - 12 - i, y - 8, 0x44000000);
-            context.drawTextWithShadow(textRenderer, healthText, x - 12 + i, y - 8, 0x44000000);
-            context.drawTextWithShadow(textRenderer, healthText, x - 12, y - 8 - i, 0x44000000);
-            context.drawTextWithShadow(textRenderer, healthText, x - 12, y - 8 + i, 0x44000000);
+            context.drawText(textRenderer, healthText, x - 12 - i, y - 8, 0x44000000, false);
+            context.drawText(textRenderer, healthText, x - 12 + i, y - 8, 0x44000000, false);
+            context.drawText(textRenderer, healthText, x - 12, y - 8 - i, 0x44000000, false);
+            context.drawText(textRenderer, healthText, x - 12, y - 8 + i, 0x44000000, false);
         }
-        context.drawTextWithShadow(textRenderer, healthText, x - 12, y - 8, color);
+        context.drawText(textRenderer, healthText, x - 12, y - 8, color, false);
         
         // Separator
-        context.drawTextWithShadow(textRenderer, "/", x + 4, y - 8, 0xFFFFFF);
+        context.drawText(textRenderer, "/", x + 4, y - 8, 0xFFFFFF, false);
         
         // Max health
-        context.drawTextWithShadow(textRenderer, maxText, x + 12, y - 8, 0xAAAAAA);
+        context.drawText(textRenderer, maxText, x + 12, y - 8, 0xAAAAAA, false);
         
         // Percentage bar below
         int barWidth = 50;
@@ -161,7 +157,7 @@ public enum HeartIndicatorType {
         if (percent < 0.2f) {
             long time = System.currentTimeMillis() % 1000;
             if (time < 500) {
-                context.drawTextWithShadow(textRenderer, "!", x - 28, y - 8, 0xFF0000);
+                context.drawText(textRenderer, "!", x - 28, y - 8, 0xFF0000, false);
             }
         }
     }),
@@ -218,7 +214,7 @@ public enum HeartIndicatorType {
             double needleAngle = Math.toRadians(angle - 90);
             int needleX = x + (int)(radius * 0.7 * Math.cos(needleAngle));
             int needleY = y + (int)(radius * 0.7 * Math.sin(needleAngle));
-            context.drawLine(x, y, needleX, needleY, 0xFFFFFFFF);
+            drawLine(context, x, y, needleX, needleY, 0xFFFFFFFF);
         }
         
         // Pulsing effect for full health
@@ -328,7 +324,6 @@ public enum HeartIndicatorType {
             if (progress <= percent) {
                 float flameHeight = (float)(Math.sin(progress * Math.PI * 4 + time * 0.01) * 0.3f + 0.5f);
                 int flameY = y + (int)(height * (1 - flameHeight));
-                int flameHeightPx = y + height - flameY;
                 
                 // Gradient from red to orange to yellow
                 int gradientColor;
@@ -487,7 +482,7 @@ public enum HeartIndicatorType {
         context.fill(x + quarterSize, y + halfSize, x + halfSize, y + halfSize + quarterSize, color);
         
         // Draw right half empty
-        drawHeartOutline(context, x + halfSize, y, halfSize, size, 0x88AAAAAA);
+        drawHeartOutline(context, x + halfSize, y, halfSize, 0x88AAAAAA);
     }
     
     private static void drawHeartOutline(DrawContext context, int x, int y, int size, int color) {
